@@ -248,3 +248,56 @@ footer {
 .search-filters .cta-button {
     width: 100%;
 }
+
+/* --- Estilos da Página de Resultados --- */
+.results-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 20px;
+}
+
+.results-header h2 {
+    margin: 0;
+}
+
+.results-grid {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.company-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    flex-basis: calc(33.333% - 14px); /* 3 cards por linha */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.company-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.company-card-logo-placeholder {
+    width: 100%;
+    height: 150px;
+    background-color: #e9e9e9;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.company-card h3 {
+    margin-top: 0;
+}
+
+.company-card .cta-button {
+    margin-top: auto; /* Truque para alinhar o botão no final do card */
+}
