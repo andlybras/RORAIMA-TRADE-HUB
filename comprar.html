@@ -27,29 +27,34 @@
 
     <main>
         <div class="container">
-            <div class="welcome-section">
-                <h2>O Comércio de Roraima para o Mundo</h2>
-                <p>Conectamos o empresariado de Roraima aos mercados global e nacional, fomentando o comércio exterior e impulsionando o desenvolvimento econômico do Estado.</p>
-
-                <div class="welcome-buttons">
-                    <a href="comprar.html" class="cta-button">Quero Comprar</a>
-                    <a href="#" class="cta-button secondary">Quero Vender</a>
-                </div>
+            <div class="search-explanation">
+                <h2>Encontre Empresas e Produtos de Roraima</h2>
+                <p>Utilize os filtros ao lado para refinar sua busca por setor de atividade, área específica ou produto. Encontre parceiros comerciais e oportunidades de negócio em nosso estado.</p>
             </div>
 
-            <div class="cards-section">
-                <div class="modules-placeholder">
-                    <a href="#">Inteligência de Mercado</a>
-                </div>
-                <div class="modules-placeholder">
-                    <a href="#">Acordos e Regulamentos</a>
-                </div>
-                <div class="modules-placeholder">
-                    <a href="#">Oportunidades</a>
-                </div>
-                <div class="modules-placeholder">
-                    <a href="#">Destino Roraima</a>
-                </div>
+            <div class="search-filters">
+                <h3>Buscador de Empresas</h3>
+                <form>
+                    <div class="filter-group">
+                        <label for="setor">Setor</label>
+                        <select id="setor" name="setor">
+                            <option value="">Selecione um setor</option>
+                            </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="area">Área</label>
+                        <select id="area" name="area">
+                            <option value="">Selecione uma área</option>
+                            </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="produto">Produto (NCM)</label>
+                        <select id="produto" name="produto">
+                            <option value="">Selecione um produto</option>
+                            </select>
+                    </div>
+                    <button type="submit" class="cta-button">Buscar</button>
+                </form>
             </div>
         </div>
     </main>

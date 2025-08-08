@@ -200,3 +200,51 @@ footer {
     align-items: center;
     flex-wrap: wrap;
 }
+
+/* --- Estilos da Página "Quero Comprar" --- */
+.search-explanation {
+    flex: 1; /* Ocupa metade do espaço */
+    padding-right: 30px; /* Um respiro para não colar nos filtros */
+}
+
+.search-explanation h2 {
+    font-size: 40px;
+    margin-top: 0;
+}
+
+.search-filters {
+    flex: 1; /* Ocupa a outra metade */
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 30px;
+}
+
+.search-filters h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 15px;
+}
+
+.filter-group {
+    margin-bottom: 20px;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+.filter-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.search-filters .cta-button {
+    width: 100%;
+}
