@@ -15,10 +15,15 @@ header {
     padding: 20px 0; 
 }
 
+/* Regra .container corrigida, sem flexbox */
 .container {
     width: 100%;
     max-width: 1200px; 
-    margin: 0 auto; 
+    margin: 0 auto;
+}
+
+/* NOVO: Aplica o flexbox apenas ao container do header */
+.header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -55,9 +60,13 @@ header {
 
 /* --- Estilos do Conteúdo Principal (Layout de 2 Colunas) --- */
 main .container {
-    display: flex;
+    padding: 40px 20px;
+}
+
+.homepage main .container,
+.search-page main .container {
+    display: flex;  
     gap: 30px; /* Espaço entre as duas colunas */
-    padding: 40px 20px; 
 }
 
 .welcome-section {
@@ -274,7 +283,8 @@ footer {
 .company-card {
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    flex-basis: calc(33.333% - 14px); /* 3 cards por linha */
+    /* Altere a linha abaixo */
+    flex-basis: calc(50% - 10px); /* DE: 33.333% e 14px PARA: 50% e 10px */
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -300,4 +310,39 @@ footer {
 
 .company-card .cta-button {
     margin-top: auto; /* Truque para alinhar o botão no final do card */
+}
+
+/* --- Estilos da Paginação --- */
+.pagination {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px; /* Espaço entre os botões da paginação */
+    margin-top: 40px; /* Espaço acima da barra de paginação */
+}
+
+.pagination a,
+.pagination span {
+    text-decoration: none;
+    color: #007bff;
+    border: 1px solid #ddd;
+    padding: 8px 16px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.pagination a:hover {
+    background-color: #f1f1f1;
+}
+
+.pagination .current-page {
+    background-color: #007bff; /* Fundo azul para a página atual */
+    color: white;
+    border-color: #007bff;
+}
+
+.results-actions {
+    width: 100%;
+    margin-bottom: 30px; /* Espaço abaixo do botão */
 }
