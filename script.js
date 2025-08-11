@@ -69,8 +69,6 @@ function renderCompanyCards() {
 
 // Espera o documento HTML ser completamente carregado para executar o script
 document.addEventListener("DOMContentLoaded", function() {
-
-    // Esta função busca o conteúdo de um arquivo e o coloca em um elemento da página
     const loadComponent = (filePath, elementSelector) => {
         fetch(filePath)
             .then(response => response.text())
@@ -79,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     };
 
-    // Chama a função para carregar o cabeçalho e o rodapé
+    // Carrega o cabeçalho e o rodapé
     loadComponent("header.html", "header");
     loadComponent("footer.html", "footer");
 
