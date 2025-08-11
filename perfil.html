@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roraima Trade Hub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="sell-page">
+    <header class="header"></header>
+
+    <main>
+    <div class="container dashboard-container">
+        <aside class="dashboard-sidebar">
+            <nav class="dashboard-nav">
+                <a href="#" class="nav-item active">Meu Painel</a>
+                <a href="#" class="nav-item">Meu Perfil</a>
+                <a href="#" class="nav-item">Minha Vitrine</a>
+                <a href="#" class="nav-item">Suporte</a>
+                <a href="index.html" class="nav-item logout">Sair</a>
+            </nav>
+        </aside>
+
+        <section class="dashboard-content">
+    <h1>Meu Perfil</h1>
+    <p>Atualize as informações da sua empresa que serão exibidas publicamente na plataforma.</p>
+
+    <div class="form-container">
+        <form>
+            <div class="form-group">
+                <label for="razao-social">Razão Social</label>
+                <input type="text" id="razao-social" name="razao-social" value="Empresa Exemplo Ltda." disabled>
+            </div>
+            <div class="form-group">
+                <label for="cnpj">CNPJ</label>
+                <input type="text" id="cnpj" name="cnpj" value="12.345.678/0001-99" disabled>
+            </div>
+            <div class="form-group">
+                <label for="nome-fantasia">Nome Fantasia</label>
+                <input type="text" id="nome-fantasia" name="nome-fantasia" value="Nome da Empresa Exemplo 1">
+            </div>
+            <div class="form-group">
+                <label for="descricao">Descrição da Empresa</label>
+                <textarea id="descricao" name="descricao" rows="5">Uma breve descrição da empresa ou de seus principais produtos e serviços para atrair o comprador...</textarea>
+            </div>
+            <div class="form-group">
+                <label for="logo">Logotipo da Empresa</label>
+                <input type="file" id="logo" name="logo">
+            </div>
+            <button type="submit" class="cta-button">Salvar Alterações</button>
+        </form>
+    </div>
+</section>
+    </div>
+    </main>
+
+    <footer></footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
