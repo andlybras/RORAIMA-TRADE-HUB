@@ -45,19 +45,57 @@ function renderCompanyDetails() {
     document.getElementById("company-logo").textContent = company.logoPlaceholder;
 }
 
+// Função para cuidar do envio do formulário de registro
+function handleRegistration() {
+    // 1. Encontra o formulário na página de registro
+    const form = document.getElementById("registration-form");
+
+    // 2. Se o formulário não existir (estamos em outra página), não faz nada
+    if (!form) return;
+
+    // 3. Adiciona um "ouvinte" para o evento de 'submit' (envio) do formulário
+    form.addEventListener("submit", function(event) {
+        // 4. Impede que o formulário recarregue a página (comportamento padrão)
+        event.preventDefault();
+
+        // 5. Pega os valores dos campos de nome e e-mail
+        const responsavel = document.getElementById("responsavel").value;
+        const email = document.getElementById("email").value;
+
+        // 6. Cria um objeto para guardar os dados do usuário
+        const user = {
+            nome: responsavel,
+            email: email
+        };
+
+        // 7. Salva os dados do usuário no localStorage (convertendo para texto JSON)
+        localStorage.setItem("registeredUser", JSON.stringify(user));
+
+        // 8. Avisa o usuário do sucesso e o redireciona para a página de login
+        alert("Registro realizado com sucesso! Agora você pode fazer o login.");
+        window.location.href = "login.html";
+    });
+}
+
 document.addEventListener("DOMContentLoaded", function() {
+    // A função continua a mesma, mas agora ela 'retorna' a promessa do fetch
     const loadComponent = (filePath, elementSelector) => {
-        fetch(filePath)
+        return fetch(filePath)
             .then(response => response.text())
             .then(data => {
                 document.querySelector(elementSelector).innerHTML = data;
-            })
-            .then(() => {
-                renderCompanyCards();
-                renderCompanyDetails();
             });
     };
 
-    loadComponent("header.html", "header");
-    loadComponent("footer.html", "footer");
+    // Usamos Promise.all para esperar que TODOS os componentes sejam carregados
+    Promise.all([
+        loadComponent("header.html", "header"),
+        loadComponent("footer.html", "footer")
+    ]).then(() => {
+        // APENAS DEPOIS que o header e o footer estiverem na página,
+        // nós executamos as funções que dependem do conteúdo da página.
+        renderCompanyCards();
+        renderCompanyDetails();
+        handleRegistration(); // Nossa nova função é chamada aqui!
+    });
 });
