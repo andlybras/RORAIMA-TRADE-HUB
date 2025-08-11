@@ -715,3 +715,51 @@ footer {
 .course-access-section h3 {
   margin-top: 0;
 }
+
+/* --- Estilos da Página de Inteligência de Mercado --- */
+.page-header {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 40px;
+}
+
+.page-header h1 {
+    margin-top: 0;
+}
+
+.widgets-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px; /* Espaço entre os cards */
+}
+
+.widget {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    /* Define 2 colunas, considerando o gap de 30px (15px para cada lado) */
+    flex-basis: calc(50% - 15px); 
+    display: flex;
+    flex-direction: column;
+}
+
+.widget h3 {
+    font-size: 18px;
+    padding: 15px 20px;
+    margin: 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.widget-content-placeholder {
+    padding: 20px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #888;
+    font-style: italic;
+    flex-grow: 1; /* Faz esta área crescer para preencher o espaço vertical */
+    text-align: center;
+}
