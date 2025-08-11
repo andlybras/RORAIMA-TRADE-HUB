@@ -686,3 +686,66 @@ footer {
     font-weight: bold;
 }
 
+/* --- Estilos da Página Minha Vitrine --- */
+.content-section {
+    margin-top: 40px;
+}
+
+.product-list {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden; /* Garante que os cantos arredondados funcionem */
+}
+
+.product-list-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.product-list-item:last-child {
+    border-bottom: none; /* Remove a borda do último item */
+}
+
+.product-name {
+    font-weight: bold;
+    flex: 1; /* Ocupa o espaço disponível */
+}
+
+.product-status {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0 20px;
+}
+
+.status-active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.product-actions .action-btn,
+.product-actions .action-btn-delete {
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+
+.action-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.action-btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
+

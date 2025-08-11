@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roraima Trade Hub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="sell-page">
+    <header class="header"></header>
+
+    <main>
+    <div class="container dashboard-container">
+        <aside class="dashboard-sidebar">
+            <nav class="dashboard-nav">
+                <a href="#" class="nav-item active">Meu Painel</a>
+                <a href="#" class="nav-item">Meu Perfil</a>
+                <a href="#" class="nav-item">Minha Vitrine</a>
+                <a href="#" class="nav-item">Suporte</a>
+                <a href="index.html" class="nav-item logout">Sair</a>
+            </nav>
+        </aside>
+
+        <section class="dashboard-content">
+    <h1>Minha Vitrine</h1>
+    <p>Gerencie os produtos e serviços que serão exibidos em sua vitrine pública.</p>
+
+    <div class="content-section">
+        <h3>Produtos Cadastrados</h3>
+        <div class="product-list">
+            <div class="product-list-item">
+                <span class="product-name">Soja em Grãos (Saca 60kg)</span>
+                <span class="product-status status-active">Ativo</span>
+                <div class="product-actions">
+                    <a href="#" class="action-btn">Editar</a>
+                    <a href="#" class="action-btn-delete">Excluir</a>
+                </div>
+            </div>
+            <div class="product-list-item">
+                <span class="product-name">Polpa de Cupuaçu (1kg)</span>
+                <span class="product-status status-inactive">Inativo</span>
+                <div class="product-actions">
+                    <a href="#" class="action-btn">Editar</a>
+                    <a href="#" class="action-btn-delete">Excluir</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h3>Adicionar Novo Produto</h3>
+        <div class="form-container">
+            <form>
+                <div class="form-group">
+                    <label for="produto-nome">Nome do Produto/Serviço</label>
+                    <input type="text" id="produto-nome" name="produto-nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="produto-fotos">Fotos</label>
+                    <input type="file" id="produto-fotos" name="produto-fotos" multiple>
+                </div>
+                <div class="form-group">
+                    <label for="produto-ncm">NCM/HS</label>
+                    <input type="text" id="produto-ncm" name="produto-ncm">
+                </div>
+                <div class="form-group">
+                    <label for="produto-certificacoes">Certificações</label>
+                    <input type="text" id="produto-certificacoes" name="produto-certificacoes">
+                </div>
+                <button type="submit" class="cta-button">Adicionar Produto</button>
+            </form>
+        </div>
+    </div>
+</section>
+    </div>
+    </main>
+
+    <footer></footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
