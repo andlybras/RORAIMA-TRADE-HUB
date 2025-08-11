@@ -763,3 +763,18 @@ footer {
     flex-grow: 1; /* Faz esta área crescer para preencher o espaço vertical */
     text-align: center;
 }
+
+/* --- Estilos da Página de Acordos e Regulamentos --- */
+.useful-links {
+    list-style: none;
+    padding: 0;
+}
+
+.useful-links li {
+    margin-bottom: 15px;
+}
+
+.useful-links a {
+    font-weight: bold;
+}
+
