@@ -77,6 +77,46 @@ function handleRegistration() {
     });
 }
 
+// Função para cuidar do envio do formulário de login
+function handleLogin() {
+    // 1. Encontra o formulário na página de login
+    const form = document.getElementById("login-form");
+
+    // 2. Se o formulário não existir, não faz nada
+    if (!form) return;
+
+    // 3. Adiciona um "ouvinte" para o evento de 'submit'
+    form.addEventListener("submit", function(event) {
+        // 4. Impede o recarregamento da página
+        event.preventDefault();
+
+        // 5. Pega o e-mail salvo no localStorage
+        const storedUserString = localStorage.getItem("registeredUser");
+
+        // 6. Se não houver usuário salvo, mostra erro
+        if (!storedUserString) {
+            alert("Nenhum usuário registrado. Por favor, registre-se primeiro.");
+            return;
+        }
+
+        // 7. Converte o texto do usuário de volta para um objeto
+        const storedUser = JSON.parse(storedUserString);
+
+        // 8. Pega o e-mail digitado no formulário
+        const email = document.getElementById("email").value;
+
+        // 9. Compara o e-mail digitado com o e-mail salvo
+        if (email === storedUser.email) {
+            // Se forem iguais, o login é um sucesso!
+            alert("Login realizado com sucesso!");
+            window.location.href = "dashboard.html";
+        } else {
+            // Se forem diferentes, mostra um erro
+            alert("E-mail ou senha incorretos.");
+        }
+    });
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     // A função continua a mesma, mas agora ela 'retorna' a promessa do fetch
     const loadComponent = (filePath, elementSelector) => {
@@ -97,5 +137,6 @@ document.addEventListener("DOMContentLoaded", function() {
         renderCompanyCards();
         renderCompanyDetails();
         handleRegistration(); // Nossa nova função é chamada aqui!
+        handleLogin();
     });
 });
