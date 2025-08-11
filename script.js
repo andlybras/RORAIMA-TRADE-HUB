@@ -1,17 +1,45 @@
 const mockCompanies = [
-    { id: 1, nome: "Grãos do Norte", descricao: "Especialistas na produção e exportação de soja e milho de alta qualidade.", logoPlaceholder: "Grãos do Norte", localidade: "Boa Vista, RR" },
-    { id: 2, nome: "Madeiras de Roraima", descricao: "Manejo sustentável e fornecimento de madeira certificada para o mercado global.", logoPlaceholder: "Madeiras RR", localidade: "Rorainópolis, RR" },
-    { id: 3, nome: "Frutas Tropicais da Amazônia", descricao: "Polpas de frutas exóticas e frescas, como açaí, cupuaçu e buriti.", logoPlaceholder: "Frutas Tropicais", localidade: "Caracaraí, RR" },
-    { id: 4, nome: "Couro & Artesanato Roraimense", descricao: "Artigos de couro e artesanato com design único da cultura local.", logoPlaceholder: "Artesanato RR", localidade: "Boa Vista, RR" },
-    { id: 5, nome: "Castanhas do Monte Roraima", descricao: "Produção e beneficiamento de castanha-do-pará com foco em qualidade.", logoPlaceholder: "Castanhas", localidade: "Pacaraima, RR" },
-    { id: 6, nome: "Pescados do Rio Branco", descricao: "Fornecimento de peixes de água doce para os mercados nacional e internacional.", logoPlaceholder: "Pescados", localidade: "Caracaraí, RR" }
+    { id: 1, nome: "Grãos do Norte", descricao: "Especialistas na produção e exportação de soja e milho.", logoPlaceholder: "Grãos do Norte", localidade: "Boa Vista, RR", setor: "Agronegócio" },
+    { id: 2, nome: "Madeiras de Roraima", descricao: "Manejo sustentável e fornecimento de madeira certificada.", logoPlaceholder: "Madeiras RR", localidade: "Rorainópolis, RR", setor: "Indústria Madeireira" },
+    { id: 3, nome: "Frutas Tropicais da Amazônia", descricao: "Polpas de frutas exóticas e frescas, como açaí e cupuaçu.", logoPlaceholder: "Frutas Tropicais", localidade: "Caracaraí, RR", setor: "Bioeconomia" },
+    { id: 4, nome: "Couro & Artesanato Roraimense", descricao: "Artigos de couro e artesanato com design único da cultura local.", logoPlaceholder: "Artesanato RR", localidade: "Boa Vista, RR", setor: "Artesanato" },
+    { id: 5, nome: "Castanhas do Monte Roraima", descricao: "Produção e beneficiamento de castanha-do-pará.", logoPlaceholder: "Castanhas", localidade: "Pacaraima, RR", setor: "Agronegócio" },
+    { id: 6, nome: "Pescados do Rio Branco", descricao: "Fornecimento de peixes de água doce para os mercados.", logoPlaceholder: "Pescados", localidade: "Caracaraí, RR", setor: "Piscicultura" }
+];
+
+const mockSectors = [
+    "Agronegócio",
+    "Artesanato",
+    "Bioeconomia",
+    "Indústria Madeireira",
+    "Piscicultura"
 ];
 
 function renderCompanyCards() {
     const gridContainer = document.querySelector(".results-grid");
     if (!gridContainer) return;
-    gridContainer.innerHTML = "";
-    mockCompanies.forEach(company => {
+
+    // LÊ O FILTRO DA URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const sectorFilter = urlParams.get('setor');
+
+    let companiesToRender = mockCompanies;
+
+    // SE EXISTIR UM FILTRO DE SETOR, FILTRA A LISTA DE EMPRESAS
+    if (sectorFilter) {
+        companiesToRender = mockCompanies.filter(company => company.setor === sectorFilter);
+    }
+
+    gridContainer.innerHTML = ""; // Limpa a grade
+
+    // VERIFICA SE HÁ RESULTADOS PARA MOSTRAR
+    if (companiesToRender.length === 0) {
+        gridContainer.innerHTML = "<p>Nenhuma empresa encontrada para este filtro.</p>";
+        return;
+    }
+
+    // RENDERIZA APENAS AS EMPRESAS FILTRADAS
+    companiesToRender.forEach(company => {
         const cardHTML = `
             <div class="company-card">
                 <div class="company-card-logo-placeholder">${company.logoPlaceholder}</div>
@@ -188,6 +216,47 @@ function handleAuthentication() {
     }
 }
 
+// Função para popular os menus de filtro na página de busca
+function populateFilters() {
+    // 1. Encontra o <select> do setor na página
+    const sectorSelect = document.getElementById("setor");
+
+    // 2. Se não encontrar (não estamos na página de busca), não faz nada
+    if (!sectorSelect) return;
+
+    // 3. Para cada setor na nossa lista de dados...
+    mockSectors.forEach(sector => {
+        // 4. ...cria um elemento <option>
+        const option = document.createElement("option");
+        option.value = sector;
+        option.textContent = sector;
+
+        // 5. ...e o adiciona ao <select>
+        sectorSelect.appendChild(option);
+    });
+}
+
+// Função para cuidar do envio do formulário de busca
+function handleSearchForm() {
+    const form = document.getElementById("search-form");
+    if (!form) return;
+
+    form.addEventListener("submit", function(event) {
+        event.preventDefault(); // Impede o envio padrão
+
+        // Pega o valor selecionado no filtro de setor
+        const sectorValue = document.getElementById("setor").value;
+
+        // Se um valor foi selecionado, redireciona para a página de resultados com o filtro na URL
+        if (sectorValue) {
+            window.location.href = `resultados.html?setor=${encodeURIComponent(sectorValue)}`;
+        } else {
+            // Se nada foi selecionado, vai para a página de resultados sem filtro
+            window.location.href = "resultados.html";
+        }
+    });
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     // A função continua a mesma, mas agora ela 'retorna' a promessa do fetch
     const loadComponent = (filePath, elementSelector) => {
@@ -210,5 +279,7 @@ document.addEventListener("DOMContentLoaded", function() {
         renderCompanyDetails();
         handleRegistration(); // Nossa nova função é chamada aqui!
         handleLogin();
+        populateFilters();
+        handleSearchForm();
     });
 });
