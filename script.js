@@ -117,6 +117,42 @@ function handleLogin() {
     });
 }
 
+// Função para verificar se o usuário está logado e personalizar a página
+function handleAuthentication() {
+    // 1. Verifica se a página atual é uma página do dashboard
+    const isDashboardPage = document.body.classList.contains("dashboard-page");
+
+    // 2. Pega os dados do usuário do localStorage
+    const storedUserString = localStorage.getItem("registeredUser");
+    const user = JSON.parse(storedUserString);
+
+    if (isDashboardPage) {
+        // Se for uma página do dashboard...
+        if (!user) {
+            // ...e NÃO houver usuário logado, redireciona para o login
+            alert("Você precisa estar logado para acessar esta página.");
+            window.location.href = "login.html";
+        } else {
+            // ...e HOUVER um usuário logado, personaliza a saudação
+            const welcomeElement = document.getElementById("welcome-message");
+            if (welcomeElement) {
+                welcomeElement.textContent = `Bem-vindo de volta, ${user.nome}!`;
+            }
+        }
+    }
+
+    // Lógica para o botão de "Sair"
+    const logoutButton = document.querySelector(".nav-item.logout");
+    if (logoutButton) {
+        logoutButton.addEventListener("click", function(event) {
+            event.preventDefault(); // Impede que o link navegue
+            localStorage.removeItem("registeredUser"); // Remove o usuário do localStorage
+            alert("Você saiu da sua conta.");
+            window.location.href = "index.html"; // Redireciona para a página inicial
+        });
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     // A função continua a mesma, mas agora ela 'retorna' a promessa do fetch
     const loadComponent = (filePath, elementSelector) => {
@@ -134,6 +170,7 @@ document.addEventListener("DOMContentLoaded", function() {
     ]).then(() => {
         // APENAS DEPOIS que o header e o footer estiverem na página,
         // nós executamos as funções que dependem do conteúdo da página.
+        handleAuthentication();
         renderCompanyCards();
         renderCompanyDetails();
         handleRegistration(); // Nossa nova função é chamada aqui!
