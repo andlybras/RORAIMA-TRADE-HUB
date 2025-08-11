@@ -473,6 +473,18 @@ footer {
   font-family: inherit;
 }
 
+.form-group input.error {
+    border-color: #dc3545; /* Borda vermelha para erro */
+    background-color: #fff8f8;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    /* Por padrão, ele fica invisível até o JS adicionar uma mensagem */
+}
+
 /* Adicione esta nova regra para o campo de arquivo */
 .form-group input[type="file"] {
   padding: 10px;

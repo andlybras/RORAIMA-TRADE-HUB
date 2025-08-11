@@ -47,34 +47,69 @@ function renderCompanyDetails() {
 
 // Função para cuidar do envio do formulário de registro
 function handleRegistration() {
-    // 1. Encontra o formulário na página de registro
     const form = document.getElementById("registration-form");
-
-    // 2. Se o formulário não existir (estamos em outra página), não faz nada
     if (!form) return;
 
-    // 3. Adiciona um "ouvinte" para o evento de 'submit' (envio) do formulário
     form.addEventListener("submit", function(event) {
-        // 4. Impede que o formulário recarregue a página (comportamento padrão)
-        event.preventDefault();
+        event.preventDefault(); // Sempre impede o envio padrão primeiro
 
-        // 5. Pega os valores dos campos de nome e e-mail
-        const responsavel = document.getElementById("responsavel").value;
-        const email = document.getElementById("email").value;
+        // Seleciona os campos que vamos validar
+        const senhaInput = document.getElementById("senha");
+        const confirmaSenhaInput = document.getElementById("confirma-senha");
 
-        // 6. Cria um objeto para guardar os dados do usuário
-        const user = {
-            nome: responsavel,
-            email: email
-        };
+        // Pega os valores
+        const senha = senhaInput.value;
+        const confirmaSenha = confirmaSenhaInput.value;
 
-        // 7. Salva os dados do usuário no localStorage (convertendo para texto JSON)
-        localStorage.setItem("registeredUser", JSON.stringify(user));
+        // Variável de controle
+        let isValid = true;
 
-        // 8. Avisa o usuário do sucesso e o redireciona para a página de login
-        alert("Registro realizado com sucesso! Agora você pode fazer o login.");
-        window.location.href = "login.html";
+        // --- INÍCIO DAS REGRAS DE VALIDAÇÃO ---
+
+        // Regra 1: Senha tem no mínimo 8 caracteres
+        if (senha.length < 8) {
+            isValid = false;
+            // Mostra a mensagem de erro e adiciona a classe de erro
+            showError(senhaInput, "A senha deve ter no mínimo 8 caracteres.");
+        } else {
+            // Limpa o erro se a regra for atendida
+            clearError(senhaInput);
+        }
+
+        // Regra 2: As senhas são iguais
+        if (senha !== confirmaSenha) {
+            isValid = false;
+            showError(confirmaSenhaInput, "As senhas não coincidem.");
+        } else {
+            clearError(confirmaSenhaInput);
+        }
+
+        // --- FIM DAS REGRAS DE VALIDAÇÃO ---
+
+        // Se todas as regras passaram (isValid continua true)...
+        if (isValid) {
+            // ...continua com a lógica de registro que já tínhamos!
+            const responsavel = document.getElementById("responsavel").value;
+            const email = document.getElementById("email").value;
+            const user = { nome: responsavel, email: email };
+            localStorage.setItem("registeredUser", JSON.stringify(user));
+            alert("Registro realizado com sucesso! Agora você pode fazer o login.");
+            window.location.href = "login.html";
+        }
     });
+
+    // Funções auxiliares para mostrar/limpar erros
+    const showError = (inputElement, message) => {
+        inputElement.classList.add("error");
+        const errorElement = inputElement.nextElementSibling;
+        errorElement.textContent = message;
+    };
+
+    const clearError = (inputElement) => {
+        inputElement.classList.remove("error");
+        const errorElement = inputElement.nextElementSibling;
+        errorElement.textContent = "";
+    };
 }
 
 // Função para cuidar do envio do formulário de login
