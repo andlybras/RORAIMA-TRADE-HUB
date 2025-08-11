@@ -612,3 +612,66 @@ footer {
 .forgot-password:hover {
     text-decoration: underline;
 }
+
+/* --- Estilos do Dashboard do Usuário --- */
+.dashboard-container {
+    display: flex;
+    align-items: flex-start; /* Alinha os itens no topo */
+    gap: 30px;
+}
+
+.dashboard-sidebar {
+    flex: 0 0 250px; /* Base flexível de 250px, sem crescer ou encolher */
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.dashboard-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dashboard-nav .nav-item {
+    padding: 12px 15px;
+    text-decoration: none;
+    color: #333;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.dashboard-nav .nav-item:hover {
+    background-color: #e0e0e0;
+}
+
+.dashboard-nav .nav-item.active {
+    background-color: #007bff;
+    color: white;
+}
+
+.dashboard-nav .nav-item.logout {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+    color: #dc3545; /* Vermelho para a ação de sair */
+}
+
+.dashboard-content {
+    flex: 1; /* Ocupa o restante do espaço */
+}
+
+.status-summary {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 30px;
+}
+
+.status-summary .status-approved {
+    color: #28a745; /* Verde para status aprovado */
+    font-weight: bold;
+}
+
