@@ -597,3 +597,18 @@ footer {
     background-color: #007bff;
     color: white;
 }
+
+.form-options {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.forgot-password {
+    font-size: 14px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
