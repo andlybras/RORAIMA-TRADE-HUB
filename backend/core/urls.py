@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
@@ -20,4 +20,5 @@ urlpatterns = [
     path('acordos/', views.acordos, name='acordos'),
     path('oportunidades/', views.oportunidades, name='oportunidades'),
     path('destino-roraima/', views.destino_roraima, name='destino-roraima'),
+    path('api/empresas/', include('empresas.urls')),
 ]
