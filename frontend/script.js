@@ -1,71 +1,73 @@
-console.log("VERSÃO NOVA DO SCRIPT CARREGADA - " + new Date());
+console.log("VERSÃO DEFINITIVA DO SCRIPT CARREGADA - " + new Date());
+
+const mockCompanies = [
+    { id: 1, nome: "Grãos do Norte", descricao: "Especialistas na produção e exportação de soja e milho de alta qualidade.", logoPlaceholder: "Grãos do Norte", localidade: "Boa Vista, RR", setor: "Agronegócio" },
+    { id: 2, nome: "Madeiras de Roraima", descricao: "Manejo sustentável e fornecimento de madeira certificada para o mercado global.", logoPlaceholder: "Madeiras RR", localidade: "Rorainópolis, RR", setor: "Indústria Madeireira" },
+    { id: 3, nome: "Frutas Tropicais da Amazônia", descricao: "Polpas de frutas exóticas e frescas, como açaí, cupuaçu e buriti.", logoPlaceholder: "Frutas Tropicais", localidade: "Caracaraí, RR", setor: "Bioeconomia" },
+    { id: 4, nome: "Couro & Artesanato Roraimense", descricao: "Artigos de couro e artesanato com design único da cultura local.", logoPlaceholder: "Artesanato RR", localidade: "Boa Vista, RR", setor: "Artesanato" },
+    { id: 5, nome: "Castanhas do Monte Roraima", descricao: "Produção e beneficiamento de castanha-do-pará com foco em qualidade.", logoPlaceholder: "Castanhas", localidade: "Pacaraima, RR", setor: "Agronegócio" },
+    { id: 6, nome: "Pescados do Rio Branco", descricao: "Fornecimento de peixes de água doce para os mercados nacional e internacional.", logoPlaceholder: "Pescados", localidade: "Caracaraí, RR", setor: "Piscicultura" }
+];
 
 const mockSectors = ["Agronegócio", "Artesanato", "Bioeconomia", "Indústria Madeireira", "Piscicultura"];
 
 function renderCompanyCards() {
     const gridContainer = document.querySelector(".results-grid");
     if (!gridContainer) return;
-
-    // 1. VAI ATÉ A NOSSA API BUSCAR OS DADOS REAIS
-    fetch('/api/empresas/')
-        .then(response => response.json()) // Pega a resposta e a traduz de JSON
-        .then(empresas => { // Agora 'empresas' é a lista que veio do nosso back-end
-
-            // O resto da lógica é quase o mesmo de antes, mas usando a lista 'empresas'
-            const urlParams = new URLSearchParams(window.location.search);
-            const sectorFilter = urlParams.get('setor');
-
-            let companiesToRender = empresas;
-
-            if (sectorFilter) {
-                companiesToRender = empresas.filter(company => company.setor === sectorFilter);
-            }
-
-            gridContainer.innerHTML = ""; // Limpa a grade
-
-            if (companiesToRender.length === 0) {
-                gridContainer.innerHTML = "<p>Nenhuma empresa encontrada para este filtro.</p>";
-                return;
-            }
-
-            companiesToRender.forEach(company => {
-                // O nome dos campos (ex: company.nome_fantasia) deve ser igual ao do nosso Model em models.py
-                const cardHTML = `
-                    <div class="company-card">
-                        <div class="company-card-logo-placeholder">${company.nome_fantasia}</div>
-                        <h3>${company.nome_fantasia}</h3>
-                        <p>${company.descricao}</p>
-                        <a href="/empresa/?id=${company.id}" class="cta-button">Ver Vitrine</a>
-                    </div>
-                `;
-                gridContainer.innerHTML += cardHTML;
-            });
-        });
+    const urlParams = new URLSearchParams(window.location.search);
+    const sectorFilter = urlParams.get('setor');
+    let companiesToRender = mockCompanies;
+    if (sectorFilter) {
+        companiesToRender = mockCompanies.filter(company => company.setor === sectorFilter);
+    }
+    gridContainer.innerHTML = "";
+    if (companiesToRender.length === 0) {
+        gridContainer.innerHTML = "<p>Nenhuma empresa encontrada para este filtro.</p>";
+        return;
+    }
+    companiesToRender.forEach(company => {
+        const cardHTML = `
+            <div class="company-card">
+                <div class="company-card-logo-placeholder">${company.logoPlaceholder}</div>
+                <h3>${company.nome}</h3>
+                <p>${company.descricao}</p>
+                <a href="/empresa/?id=${company.id}" class="cta-button">Ver Vitrine</a>
+            </div>
+        `;
+        gridContainer.innerHTML += cardHTML;
+    });
 }
 
 function renderCompanyDetails() {
     const companyNameElement = document.getElementById("company-name");
-    // 1. Verifica se estamos na página certa (procurando por um elemento que só existe lá)
+    // 1. Verifica se estamos na página certa
     if (!companyNameElement) return;
 
-    // 2. Pega os parâmetros da URL para descobrir o ID da empresa
+    // 2. Pega o ID da empresa a partir do parâmetro na URL
     const urlParams = new URLSearchParams(window.location.search);
     const companyId = urlParams.get('id');
 
-    // Se não houver ID na URL, não faz nada
-    if (!companyId) return;
+    // Se não houver ID na URL, mostra uma mensagem e para.
+    if (!companyId) {
+        companyNameElement.textContent = "ID da empresa não fornecido.";
+        return;
+    }
 
-    // 3. VAI ATÉ À NOSSA API BUSCAR OS DADOS DA EMPRESA ESPECÍFICA
+    // 3. FAZ O PEDIDO À NOSSA API DE DETALHE
     fetch(`/api/empresas/${companyId}/`)
-        .then(response => response.json()) // Pega a resposta e a traduz de JSON
-        .then(company => { // Agora 'company' é o objeto com os dados da empresa
-
-            // 4. Preenche os elementos do HTML com os dados que vieram da API
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Empresa não encontrada');
+            }
+            return response.json(); // Pega a resposta e traduz de JSON
+        })
+        .then(company => { // Agora 'company' é o objeto com os dados reais da empresa
+            // 4. Preenche a página com os dados que vieram da API
+            // (Os nomes dos campos devem ser iguais aos do nosso Model em models.py)
             companyNameElement.textContent = company.nome_fantasia;
-            document.getElementById("company-location").textContent = company.localidade;
+            document.getElementById("company-location").textContent = company.contatos; // Usando contatos como localidade por enquanto
             document.getElementById("company-description").textContent = company.descricao;
             document.getElementById("company-logo").textContent = company.nome_fantasia; // Usando nome fantasia como placeholder
-            // (Aqui também preencheríamos o catálogo de produtos)
         })
         .catch(error => {
             // Em caso de erro (ex: empresa não encontrada), mostra uma mensagem
@@ -79,46 +81,13 @@ function handleRegistration() {
     if (!form) return;
     form.addEventListener("submit", function(event) {
         event.preventDefault();
-        const senhaInput = document.getElementById("senha");
-        const confirmaSenhaInput = document.getElementById("confirma-senha");
-        const senha = senhaInput.value;
-        const confirmaSenha = confirmaSenhaInput.value;
-        let isValid = true;
-        
-        if (senha.length < 8) {
-            isValid = false;
-            showError(senhaInput, "A senha deve ter no mínimo 8 caracteres.");
-        } else {
-            clearError(senhaInput);
-        }
-        if (senha !== confirmaSenha) {
-            isValid = false;
-            showError(confirmaSenhaInput, "As senhas não coincidem.");
-        } else {
-            clearError(confirmaSenhaInput);
-        }
-
-        if (isValid) {
-            const responsavel = document.getElementById("responsavel").value;
-            const email = document.getElementById("email").value;
-            const user = { nome: responsavel, email: email };
-            localStorage.setItem("registeredUser", JSON.stringify(user));
-            alert("Registro realizado com sucesso! Agora você pode fazer o login.");
-            window.location.href = "/login/";
-        }
+        const responsavel = document.getElementById("responsavel").value;
+        const email = document.getElementById("email").value;
+        const user = { nome: responsavel, email: email };
+        localStorage.setItem("registeredUser", JSON.stringify(user));
+        alert("Registro realizado com sucesso! Agora você pode fazer o login.");
+        window.location.href = "/login/";
     });
-
-    const showError = (inputElement, message) => {
-        inputElement.classList.add("error");
-        const errorElement = inputElement.nextElementSibling;
-        errorElement.textContent = message;
-    };
-
-    const clearError = (inputElement) => {
-        inputElement.classList.remove("error");
-        const errorElement = inputElement.nextElementSibling;
-        errorElement.textContent = "";
-    };
 }
 
 function handleLogin() {

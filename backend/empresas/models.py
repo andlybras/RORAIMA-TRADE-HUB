@@ -1,7 +1,9 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Empresa(models.Model):
     # Campos baseados no nosso formulário de registro e perfil
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     razao_social = models.CharField(max_length=255)
     nome_fantasia = models.CharField(max_length=255)
     cnpj = models.CharField(max_length=18, unique=True)
