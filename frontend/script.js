@@ -79,14 +79,42 @@ function renderCompanyDetails() {
 function handleRegistration() {
     const form = document.getElementById("registration-form");
     if (!form) return;
+
     form.addEventListener("submit", function(event) {
-        event.preventDefault();
-        const responsavel = document.getElementById("responsavel").value;
-        const email = document.getElementById("email").value;
-        const user = { nome: responsavel, email: email };
-        localStorage.setItem("registeredUser", JSON.stringify(user));
-        alert("Registro realizado com sucesso! Agora você pode fazer o login.");
-        window.location.href = "/login/";
+        event.preventDefault(); // Impede o envio padrão
+
+        // Coleta todos os dados do formulário
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        // Adiciona o username, que pode ser o mesmo que o e-mail
+        data.username = data.email;
+
+        // Envia os dados para a API do Django
+        fetch('/api/empresas/register/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            // Se houver erro, rejeita a promessa para cair no .catch()
+            throw new Error('Falha no registro.');
+        })
+        .then(data => {
+            // Sucesso!
+            alert("Registro realizado com sucesso! Agora você pode fazer o login.");
+            window.location.href = "/login/";
+        })
+        .catch(error => {
+            // Erro!
+            console.error('Erro:', error);
+            alert("Ocorreu um erro no registro. Verifique os dados e tente novamente.");
+        });
     });
 }
 
