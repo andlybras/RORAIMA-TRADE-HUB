@@ -1,12 +1,16 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes da Empresa - Roraima Trade Hub</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
-<body class="company-page"> <header class="header"></header>
+<body class="company-page">
+    <header class="header">
+    {% include 'header.html' %}
+</header>
 
     <main>
         <div class="container">
@@ -42,8 +46,10 @@
         </div>
     </main>
 
-    <footer></footer>
+    <footer>
+    {% include 'footer.html' %}
+</footer>
 
-    <script src="script.js"></script>
+    <script src="{% static 'script.js' %}"></script>
 </body>
 </html>

@@ -1,45 +1,48 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Roraima Trade Hub</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body class="homepage">
-    <header class="header"></header>
+    <header class="header">
+        {% include 'header.html' %}
+    </header>
 
     <main>
         <div class="container">
             <div class="welcome-section">
                 <h2>O Comércio de Roraima para o Mundo</h2>
                 <p>Conectamos o empresariado de Roraima aos mercados global e nacional, fomentando o comércio exterior e impulsionando o desenvolvimento econômico do Estado.</p>
-
                 <div class="welcome-buttons">
-                    <a href="comprar.html" class="cta-button">Quero Comprar</a>
-                    <a href="vender.html" class="cta-button secondary">Quero Vender</a>
+                    <a href="{% url 'comprar' %}" class="cta-button">Quero Comprar</a>
+                    <a href="{% url 'vender' %}" class="cta-button secondary">Quero Vender</a>
                 </div>
             </div>
-
             <div class="cards-section">
                 <div class="modules-placeholder">
-                    <a href="inteligencia-mercado.html">Inteligência de Mercado</a>
+                    <a href="{% url 'inteligencia-mercado' %}">Inteligência de Mercado</a>
                 </div>
                 <div class="modules-placeholder">
-                    <a href="acordos.html">Acordos e Regulamentos</a>
+                    <a href="{% url 'acordos' %}">Acordos e Regulamentos</a>
                 </div>
                 <div class="modules-placeholder">
-                    <a href="oportunidades.html">Oportunidades</a>
+                    <a href="{% url 'oportunidades' %}">Oportunidades</a>
                 </div>
                 <div class="modules-placeholder">
-                    <a href="destino-roraima.html">Destino Roraima</a>
+                    <a href="{% url 'destino-roraima' %}">Destino Roraima</a>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer></footer>
+    <footer>
+        {% include 'footer.html' %}
+    </footer>
 
-    <script src="script.js"></script>
+    <script src="{% static 'script.js' %}"></script>
 </body>
 </html>
