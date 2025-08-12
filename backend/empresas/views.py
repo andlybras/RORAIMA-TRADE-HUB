@@ -8,3 +8,11 @@ class EmpresaListAPIView(generics.ListAPIView):
     """
     queryset = Empresa.objects.all()
     serializer_class = EmpresaSerializer
+
+# Adicione esta nova classe no final do arquivo
+class EmpresaDetailAPIView(generics.RetrieveAPIView):
+    """
+    Esta view exibe os detalhes de uma única empresa, identificada por seu ID.
+    """
+    queryset = Empresa.objects.all()
+    serializer_class = EmpresaSerializer

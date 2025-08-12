@@ -45,18 +45,33 @@ function renderCompanyCards() {
 
 function renderCompanyDetails() {
     const companyNameElement = document.getElementById("company-name");
+    // 1. Verifica se estamos na página certa (procurando por um elemento que só existe lá)
     if (!companyNameElement) return;
+
+    // 2. Pega os parâmetros da URL para descobrir o ID da empresa
     const urlParams = new URLSearchParams(window.location.search);
     const companyId = urlParams.get('id');
-    const company = mockCompanies.find(c => c.id == companyId);
-    if (!company) {
-        companyNameElement.textContent = "Empresa não encontrada";
-        return;
-    }
-    companyNameElement.textContent = company.nome;
-    document.getElementById("company-location").textContent = company.localidade;
-    document.getElementById("company-description").textContent = company.descricao;
-    document.getElementById("company-logo").textContent = company.logoPlaceholder;
+
+    // Se não houver ID na URL, não faz nada
+    if (!companyId) return;
+
+    // 3. VAI ATÉ À NOSSA API BUSCAR OS DADOS DA EMPRESA ESPECÍFICA
+    fetch(`/api/empresas/${companyId}/`)
+        .then(response => response.json()) // Pega a resposta e a traduz de JSON
+        .then(company => { // Agora 'company' é o objeto com os dados da empresa
+
+            // 4. Preenche os elementos do HTML com os dados que vieram da API
+            companyNameElement.textContent = company.nome_fantasia;
+            document.getElementById("company-location").textContent = company.localidade;
+            document.getElementById("company-description").textContent = company.descricao;
+            document.getElementById("company-logo").textContent = company.nome_fantasia; // Usando nome fantasia como placeholder
+            // (Aqui também preencheríamos o catálogo de produtos)
+        })
+        .catch(error => {
+            // Em caso de erro (ex: empresa não encontrada), mostra uma mensagem
+            console.error('Erro ao buscar detalhes da empresa:', error);
+            companyNameElement.textContent = "Empresa não encontrada";
+        });
 }
 
 function handleRegistration() {
