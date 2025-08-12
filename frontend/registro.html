@@ -18,6 +18,7 @@
             <h2>Crie sua Conta de Vendedor</h2>
             <p>Preencha os dados abaixo para começar a expor seus produtos para o mundo.</p>
             <form id="registration-form">
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="razao-social">Razão Social</label>
                     <input type="text" id="razao-social" name="razao_social" required>
@@ -29,10 +30,6 @@
                 <div class="form-group">
                     <label for="cnpj">CNPJ</label>
                     <input type="text" id="cnpj" name="cnpj" required>
-                </div>
-                <div class="form-group">
-                    <label for="inscricao-estadual">Inscrição Estadual</label>
-                    <input type="text" id="inscricao-estadual" name="inscricao_estadual">
                 </div>
                 <div class="form-group">
                     <label for="responsavel">Nome do Responsável</label>
@@ -58,7 +55,7 @@
                     <input type="checkbox" id="termos" name="termos" required>
                     <label for="termos">Eu li e aceito os <a href="#">termos de uso e a política de privacidade</a>.</label>
                 </div>
-                <button type="submit" class="cta-button">Registrar</button>
+                <button type="submit" class="cta-button">Registar</button>
             </form>
         </div>
     </div>

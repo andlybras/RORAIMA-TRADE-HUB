@@ -18,13 +18,14 @@
                 <h2>Acesse sua Conta</h2>
                 <p>Bem-vindo de volta! Insira seus dados para acessar seu painel.</p>
                 <form id="login-form">
+                    {% csrf_token %}
                     <div class="form-group">
                         <label for="email">E-mail</label>
                         <input type="email" id="email" name="email" required>
                     </div>
                     <div class="form-group">
                         <label for="senha">Senha</label>
-                        <input type="password" id="senha" name="senha" required>
+                        <input type="password" id="senha" name="password" required>
                     </div>
                     <div class="form-options">
                         <a href="#" class="forgot-password">Esqueci minha senha</a>

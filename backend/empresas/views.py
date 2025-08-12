@@ -1,6 +1,8 @@
 from rest_framework import generics, status # Adicione status
 from rest_framework.response import Response # Adicione Response
 from rest_framework.views import APIView # Adicione APIView
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from .models import Empresa
 from .serializers import EmpresaSerializer, UserSerializer
 import pprint 
@@ -42,3 +44,19 @@ class RegisterView(APIView):
         pprint.pprint(user_serializer.errors)
 
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class LoginView(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        # Buscamos o nome do responsável na empresa associada
+        responsavel_nome = user.empresa.responsavel_nome if hasattr(user, 'empresa') else user.username
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'email': user.email,
+            'nome': responsavel_nome # Enviamos o nome para o frontend
+        })

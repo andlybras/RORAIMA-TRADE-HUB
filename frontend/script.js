@@ -81,20 +81,21 @@ function handleRegistration() {
     if (!form) return;
 
     form.addEventListener("submit", function(event) {
-        event.preventDefault(); // Impede o envio padrão
+        event.preventDefault();
 
-        // Coleta todos os dados do formulário
+        // Pega o token CSRF do input escondido que o Django criou
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
-
-        // Adiciona o username, que pode ser o mesmo que o e-mail
         data.username = data.email;
 
-        // Envia os dados para a API do Django
         fetch('/api/empresas/register/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                // ADICIONAMOS ESTA LINHA para enviar o token
+                'X-CSRFToken': csrfToken
             },
             body: JSON.stringify(data)
         })
@@ -102,18 +103,15 @@ function handleRegistration() {
             if (response.ok) {
                 return response.json();
             }
-            // Se houver erro, rejeita a promessa para cair no .catch()
-            throw new Error('Falha no registro.');
+            throw new Error('Falha no registo.');
         })
         .then(data => {
-            // Sucesso!
-            alert("Registro realizado com sucesso! Agora você pode fazer o login.");
+            alert("Registo realizado com sucesso! Pode agora fazer o login.");
             window.location.href = "/login/";
         })
         .catch(error => {
-            // Erro!
             console.error('Erro:', error);
-            alert("Ocorreu um erro no registro. Verifique os dados e tente novamente.");
+            alert("Ocorreu um erro no registo. Verifique os dados e tente novamente.");
         });
     });
 }
@@ -121,24 +119,45 @@ function handleRegistration() {
 function handleLogin() {
     const form = document.getElementById("login-form");
     if (!form) return;
+
     form.addEventListener("submit", function(event) {
         event.preventDefault();
-        const storedUserString = localStorage.getItem("registeredUser");
-        if (!storedUserString) {
-            alert("Nenhum usuário registrado. Por favor, registre-se primeiro.");
-            return;
-        }
-        const storedUser = JSON.parse(storedUserString);
-        const email = document.getElementById("email").value;
-        if (email === storedUser.email) {
+
+        // Pega o token CSRF do input escondido que o Django criou
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        data.username = data.email;
+
+        fetch('/api/empresas/login/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // ADICIONAMOS ESTA LINHA para enviar o token de segurança
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Falha no login.');
+        })
+        .then(data => {
+            localStorage.setItem('authToken', data.token);
+            const user = { email: data.email, id: data.user_id, nome: data.nome };
+            localStorage.setItem("registeredUser", JSON.stringify(user));
             alert("Login realizado com sucesso!");
             window.location.href = "/dashboard/";
-        } else {
+        })
+        .catch(error => {
+            console.error('Erro:', error);
             alert("E-mail ou senha incorretos.");
-        }
+        });
     });
 }
-
 function handleAuthentication() {
     const isDashboardPage = document.body.classList.contains("dashboard-page");
     const storedUserString = localStorage.getItem("registeredUser");
