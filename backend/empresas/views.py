@@ -53,24 +53,18 @@ class LoginView(ObtainAuthToken):
 
 # View para o utilizador logado ver e ATUALIZAR os dados da sua própria empresa
 class MyEmpresaAPIView(generics.RetrieveUpdateAPIView):
+    """
+    View para o utilizador logado ver e atualizar os dados da sua própria empresa.
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = EmpresaProfileSerializer
 
     def get_object(self):
-        user = self.request.user
         try:
-            return user.empresa
+            # Esta linha é a mais importante: ela busca a empresa
+            # especificamente ligada ao 'user' que fez o pedido.
+            return self.request.user.empresa
         except Empresa.DoesNotExist:
-            # Cria empresa padrão se não existir
-            empresa = Empresa.objects.create(
-                user=user,
-                razao_social=user.username,
-                nome_fantasia=user.username,
-                cnpj=f"00000000000000{user.pk}",
-                responsavel_nome=user.username,
-                email=user.email,
-                contatos=""
-            )
-            return empresa
-            # Se não encontrar, levanta uma exceção que o DRF entende como "Não Encontrado"
+            # Se não encontrar (ex: para um superuser sem empresa),
+            # levanta uma exceção que o DRF entende como "Não Encontrado".
             raise Http404

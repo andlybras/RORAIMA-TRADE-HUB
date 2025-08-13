@@ -28,5 +28,13 @@ class UserSerializer(serializers.ModelSerializer):
 class EmpresaProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Empresa
-        # Define explicitamente que SÓ estes campos podem ser atualizados a partir do perfil
-        fields = ['nome_fantasia', 'descricao', 'contatos']
+        # Agora incluímos todos os campos que queremos mostrar...
+        fields = [
+            'razao_social', 
+            'cnpj', 
+            'nome_fantasia', 
+            'descricao', 
+            'contatos'
+        ]
+        # ...e dizemos ao tradutor que a razão social e o cnpj são apenas para leitura.
+        read_only_fields = ['razao_social', 'cnpj']
