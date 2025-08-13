@@ -221,4 +221,35 @@ document.addEventListener("DOMContentLoaded", function() {
     handleLogin();
     populateFilters();
     handleSearchForm();
+    populateProfileForm();
 });
+
+// Função para popular o formulário de perfil com dados da API
+function populateProfileForm() {
+    const form = document.getElementById("perfil-form");
+    if (!form) return; // Só executa se estivermos na página de perfil
+
+    const token = localStorage.getItem('authToken');
+    if (!token) return; // Se não houver token, não há como buscar os dados
+
+    fetch('/api/empresas/my-empresa/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            // AQUI ESTÁ O "CRACHÁ"!
+            'Authorization': `Token ${token}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Não foi possível carregar os dados do perfil.');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Preenche os campos do formulário com os dados recebidos da API
+        form.querySelector('[name="nome_fantasia"]').value = data.nome_fantasia;
+        form.querySelector('[name="descricao"]').value = data.descricao;
+        // Preencher outros campos se necessário...
+    });
+}

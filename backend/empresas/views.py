@@ -1,3 +1,4 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, status # Adicione status
 from rest_framework.response import Response # Adicione Response
 from rest_framework.views import APIView # Adicione APIView
@@ -60,3 +61,14 @@ class LoginView(ObtainAuthToken):
             'email': user.email,
             'nome': responsavel_nome # Enviamos o nome para o frontend
         })
+        
+class MyEmpresaAPIView(generics.RetrieveUpdateAPIView):
+    """
+    View para o utilizador logado ver e atualizar os dados da sua própria empresa.
+    """
+    permission_classes = [IsAuthenticated] # Só permite o acesso a utilizadores autenticados
+    serializer_class = EmpresaSerializer
+
+    def get_object(self):
+        # Retorna a empresa que está ligada ao utilizador que fez o pedido
+        return self.request.user.empresa
