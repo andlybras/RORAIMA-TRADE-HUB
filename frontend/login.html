@@ -17,7 +17,7 @@
             <div class="form-container">
                 <h2>Acesse sua Conta</h2>
                 <p>Bem-vindo de volta! Insira seus dados para acessar seu painel.</p>
-                <form id="login-form">
+                <form id="login-form" method="POST">
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="email">E-mail</label>

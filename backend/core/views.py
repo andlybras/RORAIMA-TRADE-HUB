@@ -47,3 +47,12 @@ def oportunidades(request):
 
 def destino_roraima(request):
     return render(request, 'destino-roraima.html')
+# Adicione estas 3 funções no final de views.py
+def politica_privacidade(request):
+    return render(request, 'politica-privacidade.html')
+
+def termos_de_uso(request):
+    return render(request, 'termos-de-uso.html')
+
+def acessibilidade(request):
+    return render(request, 'acessibilidade.html')

@@ -1,5 +1,11 @@
 from django.urls import path
-from .views import EmpresaListAPIView, EmpresaDetailAPIView, RegisterView, LoginView, MyEmpresaAPIView # Importe a RegisterView
+from .views import (
+    EmpresaListAPIView,
+    EmpresaDetailAPIView,
+    RegisterView,
+    LoginView,
+    MyEmpresaAPIView
+)
 
 urlpatterns = [
     path('', EmpresaListAPIView.as_view(), name='empresa-list-api'),

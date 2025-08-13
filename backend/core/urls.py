@@ -1,9 +1,12 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include # Garanta que 'include' está aqui
+
 from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # URLs do Frontend
     path('', views.homepage, name='homepage'),
     path('comprar/', views.comprar, name='comprar'),
     path('resultados/', views.resultados, name='resultados'),
@@ -20,5 +23,10 @@ urlpatterns = [
     path('acordos/', views.acordos, name='acordos'),
     path('oportunidades/', views.oportunidades, name='oportunidades'),
     path('destino-roraima/', views.destino_roraima, name='destino-roraima'),
+    path('politica-privacidade/', views.politica_privacidade, name='politica-privacidade'),
+    path('termos-de-uso/', views.termos_de_uso, name='termos-de-uso'),
+    path('acessibilidade/', views.acessibilidade, name='acessibilidade'),
+
+    # URL da nossa API
     path('api/empresas/', include('empresas.urls')),
 ]

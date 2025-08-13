@@ -1,6 +1,4 @@
-console.log("VERSÃO DEFINITIVA DO SCRIPT CARREGADA - " + new Date());
-
-// Esta lista de setores ainda é útil para popularmos o filtro de busca
+// A lista de setores ainda é útil para popularmos o filtro de busca
 const mockSectors = ["Agronegócio", "Artesanato", "Bioeconomia", "Indústria Madeireira", "Piscicultura"];
 
 // Função para buscar a lista de empresas da API e renderizar os cards
@@ -18,13 +16,7 @@ function renderCompanyCards() {
             let companiesToRender = empresas;
 
             if (sectorFilter) {
-                // No futuro, o ideal é o próprio back-end fazer este filtro
-                const empresaModel = empresas.find(e => e.setor === sectorFilter);
-                if(empresaModel) {
-                    companiesToRender = [empresaModel];
-                } else {
-                    companiesToRender = [];
-                }
+                companiesToRender = empresas.filter(company => company.setor === sectorFilter);
             }
 
             gridContainer.innerHTML = ""; // Limpa a grade
@@ -68,7 +60,7 @@ function renderCompanyDetails() {
         })
         .then(company => {
             companyNameElement.textContent = company.nome_fantasia;
-            document.getElementById("company-location").textContent = company.contatos; // Ajustar conforme o modelo
+            document.getElementById("company-location").textContent = company.contatos;
             document.getElementById("company-description").textContent = company.descricao;
             document.getElementById("company-logo").textContent = company.nome_fantasia;
         })
@@ -85,7 +77,7 @@ function handleRegistration() {
 
     form.addEventListener("submit", function(event) {
         event.preventDefault();
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         data.username = data.email;
@@ -110,7 +102,7 @@ function handleRegistration() {
             console.error('Erro:', error);
             alert("Ocorreu um erro no registo. Verifique os dados e tente novamente.");
         });
-});
+    });
 }
 
 // Função para lidar com o formulário de login, enviando para a API
@@ -120,7 +112,7 @@ function handleLogin() {
 
     form.addEventListener("submit", function(event) {
         event.preventDefault();
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         data.username = data.email;
@@ -185,6 +177,75 @@ function handleAuthentication() {
     }
 }
 
+// Função para popular e ATUALIZAR o formulário de perfil
+// Função para popular E ATUALIZAR o formulário de perfil
+function populateProfileForm() {
+    const form = document.getElementById("perfil-form");
+    if (!form) return; // Só executa se estivermos na página de perfil
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        // Se não houver token, não podemos fazer nada, a função de autenticação já deve ter redirecionado
+        return;
+    }
+
+    // --- PARTE 1: BUSCAR E PREENCHER OS DADOS ---
+    fetch('/api/empresas/my-empresa/', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Token ${token}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.warn("Utilizador logado não tem um perfil de empresa associado.");
+            return Promise.reject('Sem perfil de empresa.');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Preenche os campos do formulário com os dados recebidos da API
+        form.querySelector('[name="nome_fantasia"]').value = data.nome_fantasia || '';
+        form.querySelector('[name="descricao"]').value = data.descricao || '';
+        form.querySelector('[name="razao_social"]').value = data.razao_social || '-';
+        form.querySelector('[name="cnpj"]').value = data.cnpj || '-';
+    })
+    .catch(error => console.error("Aviso ao popular perfil:", error));
+
+    // --- PARTE 2: ENVIAR AS ATUALIZAÇÕES AO CLICAR EM "SALVAR" ---
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Pega o token CSRF do input escondido que o Django criou
+        const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        fetch('/api/empresas/my-empresa/', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Token ${token}`,
+                'X-CSRFToken': csrfToken // O código de segurança
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Falha ao atualizar o perfil.');
+            }
+            return response.json();
+        })
+        .then(updatedData => {
+            alert('Perfil atualizado com sucesso!');
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Ocorreu um erro ao atualizar o perfil.');
+        });
+    });
+}
+
 // Função para popular os filtros de busca
 function populateFilters() {
     const sectorSelect = document.getElementById("setor");
@@ -223,33 +284,3 @@ document.addEventListener("DOMContentLoaded", function() {
     handleSearchForm();
     populateProfileForm();
 });
-
-// Função para popular o formulário de perfil com dados da API
-function populateProfileForm() {
-    const form = document.getElementById("perfil-form");
-    if (!form) return; // Só executa se estivermos na página de perfil
-
-    const token = localStorage.getItem('authToken');
-    if (!token) return; // Se não houver token, não há como buscar os dados
-
-    fetch('/api/empresas/my-empresa/', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            // AQUI ESTÁ O "CRACHÁ"!
-            'Authorization': `Token ${token}`
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Não foi possível carregar os dados do perfil.');
-        }
-        return response.json();
-    })
-    .then(data => {
-        // Preenche os campos do formulário com os dados recebidos da API
-        form.querySelector('[name="nome_fantasia"]').value = data.nome_fantasia;
-        form.querySelector('[name="descricao"]').value = data.descricao;
-        // Preencher outros campos se necessário...
-    });
-}
