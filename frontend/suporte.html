@@ -16,11 +16,11 @@
     <div class="container dashboard-container">
         <aside class="dashboard-sidebar">
             <nav class="dashboard-nav">
-                <a href="dashboard.html" class="nav-item">Meu Painel</a>
-                <a href="perfil.html" class="nav-item">Meu Perfil</a>
-                <a href="vitrine.html" class="nav-item">Minha Vitrine</a>
-                <a href="suporte.html" class="nav-item active">Suporte</a>
-                <a href="index.html" class="nav-item logout">Sair</a>
+                <a href="{% url 'dashboard' %}" class="nav-item">Meu Painel</a>
+                <a href="{% url 'perfil' %}" class="nav-item">Meu Perfil</a>
+                <a href="{% url 'vitrine' %}" class="nav-item">Minha Vitrine</a>
+                <a href="{% url 'suporte' %}" class="nav-item active">Suporte</a>
+                <a href="{% url 'homepage' %}" class="nav-item logout">Sair</a>
             </nav>
         </aside>
 

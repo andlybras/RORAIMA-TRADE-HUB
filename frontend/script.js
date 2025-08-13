@@ -1,91 +1,91 @@
 console.log("VERSÃO DEFINITIVA DO SCRIPT CARREGADA - " + new Date());
 
-const mockCompanies = [
-    { id: 1, nome: "Grãos do Norte", descricao: "Especialistas na produção e exportação de soja e milho de alta qualidade.", logoPlaceholder: "Grãos do Norte", localidade: "Boa Vista, RR", setor: "Agronegócio" },
-    { id: 2, nome: "Madeiras de Roraima", descricao: "Manejo sustentável e fornecimento de madeira certificada para o mercado global.", logoPlaceholder: "Madeiras RR", localidade: "Rorainópolis, RR", setor: "Indústria Madeireira" },
-    { id: 3, nome: "Frutas Tropicais da Amazônia", descricao: "Polpas de frutas exóticas e frescas, como açaí, cupuaçu e buriti.", logoPlaceholder: "Frutas Tropicais", localidade: "Caracaraí, RR", setor: "Bioeconomia" },
-    { id: 4, nome: "Couro & Artesanato Roraimense", descricao: "Artigos de couro e artesanato com design único da cultura local.", logoPlaceholder: "Artesanato RR", localidade: "Boa Vista, RR", setor: "Artesanato" },
-    { id: 5, nome: "Castanhas do Monte Roraima", descricao: "Produção e beneficiamento de castanha-do-pará com foco em qualidade.", logoPlaceholder: "Castanhas", localidade: "Pacaraima, RR", setor: "Agronegócio" },
-    { id: 6, nome: "Pescados do Rio Branco", descricao: "Fornecimento de peixes de água doce para os mercados nacional e internacional.", logoPlaceholder: "Pescados", localidade: "Caracaraí, RR", setor: "Piscicultura" }
-];
-
+// Esta lista de setores ainda é útil para popularmos o filtro de busca
 const mockSectors = ["Agronegócio", "Artesanato", "Bioeconomia", "Indústria Madeireira", "Piscicultura"];
 
+// Função para buscar a lista de empresas da API e renderizar os cards
 function renderCompanyCards() {
     const gridContainer = document.querySelector(".results-grid");
     if (!gridContainer) return;
-    const urlParams = new URLSearchParams(window.location.search);
-    const sectorFilter = urlParams.get('setor');
-    let companiesToRender = mockCompanies;
-    if (sectorFilter) {
-        companiesToRender = mockCompanies.filter(company => company.setor === sectorFilter);
-    }
-    gridContainer.innerHTML = "";
-    if (companiesToRender.length === 0) {
-        gridContainer.innerHTML = "<p>Nenhuma empresa encontrada para este filtro.</p>";
-        return;
-    }
-    companiesToRender.forEach(company => {
-        const cardHTML = `
-            <div class="company-card">
-                <div class="company-card-logo-placeholder">${company.logoPlaceholder}</div>
-                <h3>${company.nome}</h3>
-                <p>${company.descricao}</p>
-                <a href="/empresa/?id=${company.id}" class="cta-button">Ver Vitrine</a>
-            </div>
-        `;
-        gridContainer.innerHTML += cardHTML;
-    });
+
+    // Busca os dados da nossa API Django
+    fetch('/api/empresas/')
+        .then(response => response.json())
+        .then(empresas => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sectorFilter = urlParams.get('setor');
+
+            let companiesToRender = empresas;
+
+            if (sectorFilter) {
+                // No futuro, o ideal é o próprio back-end fazer este filtro
+                const empresaModel = empresas.find(e => e.setor === sectorFilter);
+                if(empresaModel) {
+                    companiesToRender = [empresaModel];
+                } else {
+                    companiesToRender = [];
+                }
+            }
+
+            gridContainer.innerHTML = ""; // Limpa a grade
+
+            if (companiesToRender.length === 0) {
+                gridContainer.innerHTML = "<p>Nenhuma empresa encontrada para este filtro.</p>";
+                return;
+            }
+
+            companiesToRender.forEach(company => {
+                const cardHTML = `
+                    <div class="company-card">
+                        <div class="company-card-logo-placeholder">${company.nome_fantasia}</div>
+                        <h3>${company.nome_fantasia}</h3>
+                        <p>${company.descricao || 'Descrição não disponível.'}</p>
+                        <a href="/empresa/?id=${company.id}" class="cta-button">Ver Vitrine</a>
+                    </div>
+                `;
+                gridContainer.innerHTML += cardHTML;
+            });
+        });
 }
 
+// Função para buscar os dados de uma empresa específica e preencher a página de detalhes
 function renderCompanyDetails() {
     const companyNameElement = document.getElementById("company-name");
-    // 1. Verifica se estamos na página certa
     if (!companyNameElement) return;
 
-    // 2. Pega o ID da empresa a partir do parâmetro na URL
     const urlParams = new URLSearchParams(window.location.search);
     const companyId = urlParams.get('id');
 
-    // Se não houver ID na URL, mostra uma mensagem e para.
     if (!companyId) {
         companyNameElement.textContent = "ID da empresa não fornecido.";
         return;
     }
 
-    // 3. FAZ O PEDIDO À NOSSA API DE DETALHE
     fetch(`/api/empresas/${companyId}/`)
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Empresa não encontrada');
-            }
-            return response.json(); // Pega a resposta e traduz de JSON
+            if (!response.ok) throw new Error('Empresa não encontrada');
+            return response.json();
         })
-        .then(company => { // Agora 'company' é o objeto com os dados reais da empresa
-            // 4. Preenche a página com os dados que vieram da API
-            // (Os nomes dos campos devem ser iguais aos do nosso Model em models.py)
+        .then(company => {
             companyNameElement.textContent = company.nome_fantasia;
-            document.getElementById("company-location").textContent = company.contatos; // Usando contatos como localidade por enquanto
+            document.getElementById("company-location").textContent = company.contatos; // Ajustar conforme o modelo
             document.getElementById("company-description").textContent = company.descricao;
-            document.getElementById("company-logo").textContent = company.nome_fantasia; // Usando nome fantasia como placeholder
+            document.getElementById("company-logo").textContent = company.nome_fantasia;
         })
         .catch(error => {
-            // Em caso de erro (ex: empresa não encontrada), mostra uma mensagem
             console.error('Erro ao buscar detalhes da empresa:', error);
             companyNameElement.textContent = "Empresa não encontrada";
         });
 }
 
+// Função para lidar com o formulário de registo, enviando para a API
 function handleRegistration() {
     const form = document.getElementById("registration-form");
     if (!form) return;
 
     form.addEventListener("submit", function(event) {
         event.preventDefault();
-
-        // Pega o token CSRF do input escondido que o Django criou
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         data.username = data.email;
@@ -94,15 +94,12 @@ function handleRegistration() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // ADICIONAMOS ESTA LINHA para enviar o token
                 'X-CSRFToken': csrfToken
             },
             body: JSON.stringify(data)
         })
         .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
+            if (response.ok) return response.json();
             throw new Error('Falha no registo.');
         })
         .then(data => {
@@ -113,19 +110,17 @@ function handleRegistration() {
             console.error('Erro:', error);
             alert("Ocorreu um erro no registo. Verifique os dados e tente novamente.");
         });
-    });
+});
 }
 
+// Função para lidar com o formulário de login, enviando para a API
 function handleLogin() {
     const form = document.getElementById("login-form");
     if (!form) return;
 
     form.addEventListener("submit", function(event) {
         event.preventDefault();
-
-        // Pega o token CSRF do input escondido que o Django criou
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         data.username = data.email;
@@ -134,15 +129,12 @@ function handleLogin() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // ADICIONAMOS ESTA LINHA para enviar o token de segurança
                 'X-CSRFToken': csrfToken
             },
             body: JSON.stringify(data)
         })
         .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
+            if (response.ok) return response.json();
             throw new Error('Falha no login.');
         })
         .then(data => {
@@ -158,33 +150,42 @@ function handleLogin() {
         });
     });
 }
+
+// Função para verificar se o utilizador está logado e proteger páginas
 function handleAuthentication() {
     const isDashboardPage = document.body.classList.contains("dashboard-page");
-    const storedUserString = localStorage.getItem("registeredUser");
-    if (isDashboardPage) {
-        if (!storedUserString) {
-            alert("Você precisa estar logado para acessar esta página.");
-            window.location.href = "/login/";
-            return;
-        } else {
-            const user = JSON.parse(storedUserString);
+    const token = localStorage.getItem("authToken");
+
+    if (isDashboardPage && !token) {
+        alert("Você precisa estar logado para acessar esta página.");
+        window.location.href = "/login/";
+        return;
+    }
+    
+    if (isDashboardPage && token) {
+        const userString = localStorage.getItem("registeredUser");
+        if (userString) {
+            const user = JSON.parse(userString);
             const welcomeElement = document.getElementById("welcome-message");
-            if (welcomeElement && user) {
+            if (welcomeElement && user.nome) {
                 welcomeElement.textContent = `Bem-vindo de volta, ${user.nome}!`;
             }
         }
     }
+
     const logoutButton = document.querySelector(".nav-item.logout");
     if (logoutButton) {
         logoutButton.addEventListener("click", function(event) {
             event.preventDefault();
             localStorage.removeItem("registeredUser");
+            localStorage.removeItem("authToken");
             alert("Você saiu da sua conta.");
             window.location.href = "/";
         });
     }
 }
 
+// Função para popular os filtros de busca
 function populateFilters() {
     const sectorSelect = document.getElementById("setor");
     if (!sectorSelect) return;
@@ -196,6 +197,7 @@ function populateFilters() {
     });
 }
 
+// Função para lidar com o envio do formulário de busca
 function handleSearchForm() {
     const form = document.getElementById("search-form");
     if (!form) return;
@@ -210,6 +212,7 @@ function handleSearchForm() {
     });
 }
 
+// Evento principal que "orquestra" tudo
 document.addEventListener("DOMContentLoaded", function() {
     handleAuthentication();
     renderCompanyCards();
