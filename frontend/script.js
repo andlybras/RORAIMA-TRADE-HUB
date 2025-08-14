@@ -455,6 +455,37 @@ function handleProductActions() {
     };
 }
 
+// Função para popular elementos comuns do dashboard (logótipo, nome da empresa)
+function populateDashboardHeader() {
+    const isDashboardPage = document.body.classList.contains("dashboard-page");
+    if (!isDashboardPage) return;
+
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    const logoImgElement = document.getElementById("dashboard-logo-img");
+    const companyNameElement = document.getElementById("dashboard-company-name");
+
+    fetch('/api/empresas/my-empresa/', {
+        method: 'GET',
+        headers: { 'Authorization': `Token ${token}` }
+    })
+    .then(response => response.ok ? response.json() : Promise.reject('Falha ao carregar dados do perfil'))
+    .then(data => {
+        if (data.logomarca) {
+            logoImgElement.src = data.logomarca;
+        } else {
+            // Poderíamos definir uma imagem padrão aqui
+            logoImgElement.src = "https://placehold.co/150x150?text=Logo";
+        }
+        companyNameElement.textContent = data.nome_fantasia;
+    })
+    .catch(error => {
+        console.error("Erro ao popular o cabeçalho do dashboard:", error);
+        companyNameElement.textContent = "Erro ao carregar";
+    });
+}
+
 // Evento principal que "orquestra" tudo
 document.addEventListener("DOMContentLoaded", function() {
     handleAuthentication();
@@ -465,6 +496,7 @@ document.addEventListener("DOMContentLoaded", function() {
     populateFilters();
     handleSearchForm();
     populateProfileForm();
+    populateDashboardHeader();
     renderMyProducts(); // <-- ADICIONE ESTA LINHA
     handleAddProduct();
     handleProductActions();

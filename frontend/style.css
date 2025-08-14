@@ -905,3 +905,25 @@ footer {
 .close-modal:hover {
     color: #000;
 }
+
+.profile-sidebar-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.sidebar-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%; /* Deixa o logótipo redondo */
+    object-fit: cover; /* Garante que a imagem preencha o espaço sem distorcer */
+    background-color: #e0e0e0;
+    margin-bottom: 10px;
+}
+
+#dashboard-company-name {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}

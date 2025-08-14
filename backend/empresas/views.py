@@ -65,6 +65,13 @@ class MyEmpresaAPIView(generics.RetrieveUpdateAPIView):
             return self.request.user.empresa
         except Empresa.DoesNotExist:
             raise Http404
+        
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)  # permite atualização parcial
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 class ProdutoViewSet(viewsets.ModelViewSet):
     serializer_class = ProdutoSerializer
