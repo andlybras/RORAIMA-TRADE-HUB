@@ -56,3 +56,6 @@ def termos_de_uso(request):
 
 def acessibilidade(request):
     return render(request, 'acessibilidade.html')
+
+def cursos(request):
+    return render(request, 'cursos.html')

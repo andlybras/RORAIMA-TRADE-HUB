@@ -23,10 +23,12 @@ urlpatterns = [
     path('acordos/', views.acordos, name='acordos'),
     path('oportunidades/', views.oportunidades, name='oportunidades'),
     path('destino-roraima/', views.destino_roraima, name='destino-roraima'),
+    path('cursos/', views.cursos, name='cursos'),
     path('politica-privacidade/', views.politica_privacidade, name='politica-privacidade'),
     path('termos-de-uso/', views.termos_de_uso, name='termos-de-uso'),
     path('acessibilidade/', views.acessibilidade, name='acessibilidade'),
 
     # URL da nossa API
     path('api/empresas/', include('empresas.urls')),
+    path('api/cursos/', include('cursos.urls')),
 ]

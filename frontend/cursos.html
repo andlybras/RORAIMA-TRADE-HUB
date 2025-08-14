@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursos - Roraima Trade Hub</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body class="content-page">
+    <header class="header">
+        {% include 'header.html' %}
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1>Cursos de Capacitação</h1>
+                <p>Prepare a sua empresa para o mercado global com os nossos cursos.</p>
+            </div>
+
+            <div id="cursos-list-container">
+                </div>
+        </div>
+    </main>
+
+    <footer>
+        {% include 'footer.html' %}
+    </footer>
+
+    <script src="{% static 'script.js' %}"></script>
+</body>
+</html>

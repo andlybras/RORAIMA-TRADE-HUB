@@ -850,3 +850,21 @@ footer {
     font-style: italic;
     margin-bottom: 20px;
 }
+
+/* --- Estilos da Página de Cursos --- */
+.course-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.course-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 25px;
+    transition: box-shadow 0.2s;
+}
+
+.course-card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}

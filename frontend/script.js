@@ -272,6 +272,34 @@ function handleSearchForm() {
     });
 }
 
+// Função para buscar e renderizar a lista de cursos
+function renderCursosList() {
+    const container = document.getElementById("cursos-list-container");
+    if (!container) return;
+
+    fetch('/api/cursos/')
+        .then(response => response.json())
+        .then(cursos => {
+            if (cursos.length === 0) {
+                container.innerHTML = "<p>Nenhum curso disponível no momento.</p>";
+                return;
+            }
+
+            let html = '<div class="course-list">';
+            cursos.forEach(curso => {
+                html += `
+                    <div class="course-card">
+                        <h3>${curso.titulo}</h3>
+                        <p>${curso.descricao}</p>
+                        <a href="/cursos/${curso.id}/" class="cta-button">Ver Curso</a>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        });
+}
+
 // Evento principal que "orquestra" tudo
 document.addEventListener("DOMContentLoaded", function() {
     handleAuthentication();
@@ -282,4 +310,5 @@ document.addEventListener("DOMContentLoaded", function() {
     populateFilters();
     handleSearchForm();
     populateProfileForm();
+    renderCursosList();
 });
