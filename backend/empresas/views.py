@@ -39,7 +39,6 @@ class RegisterView(APIView):
         else:
             # ---- LINHA DE DEBUG ADICIONADA ----
             # Esta linha irá imprimir o erro exato no seu terminal
-            print("--- ERRO DE VALIDAÇÃO NO REGISTRO:", user_serializer.errors, "---")
             return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # View para fazer LOGIN e obter um token
@@ -66,7 +65,6 @@ class MyEmpresaAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = EmpresaProfileSerializer
 
     def get_object(self):
-        print(f"--- API 'my-empresa' FOI CHAMADA PELO USUÁRIO: {self.request.user} ---")
         try:
             # Esta linha é a mais importante: ela busca a empresa
             # que está especificamente ligada ao 'user' que fez o pedido.

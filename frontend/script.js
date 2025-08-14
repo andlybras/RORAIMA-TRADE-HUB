@@ -65,7 +65,6 @@ function renderCompanyDetails() {
             document.getElementById("company-logo").textContent = company.nome_fantasia;
         })
         .catch(error => {
-            console.error('Erro ao buscar detalhes da empresa:', error);
             companyNameElement.textContent = "Empresa não encontrada";
         });
 }
@@ -73,17 +72,13 @@ function renderCompanyDetails() {
 // Função para lidar com o formulário de registo, enviando para a API
 function handleRegistration() {
     const form = document.getElementById("registration-form");
-    console.log("Procurando pelo formulário com id 'registration-form'. Resultado:", form);
     if (!form) {
         // ---- OUTRA LINHA DE DEBUG ADICIONADA ----
-        console.error("AVISO: O formulário de registro não foi encontrado no HTML!");
         return;
     }
 
     form.addEventListener("submit", function(event) {
-        console.log("EVENTO DE SUBMIT CAPTURADO!");
         event.preventDefault();
-        console.log("Ação padrão do formulário (recarregar a página) foi prevenida.");
         const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
@@ -106,11 +101,9 @@ function handleRegistration() {
             window.location.href = "/login/";
         })
         .catch(error => {
-            console.error('Erro:', error);
             alert("Ocorreu um erro no registo. Verifique os dados e tente novamente.");
         });
     });
-    console.log("O 'ouvinte' (event listener) para o formulário de registro foi adicionado.");
 }
 
 // Função para lidar com o formulário de login, enviando para a API
@@ -145,7 +138,6 @@ function handleLogin() {
             window.location.href = "/dashboard/";
         })
         .catch(error => {
-            console.error('Erro:', error);
             alert("E-mail ou senha incorretos.");
         });
     });
@@ -248,7 +240,6 @@ function populateProfileForm() {
             alert('Perfil atualizado com sucesso!');
         })
         .catch(error => {
-            console.error('Erro:', error);
             alert('Ocorreu um erro ao atualizar o perfil.');
         });
     });
