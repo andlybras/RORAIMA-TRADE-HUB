@@ -3,6 +3,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from .models import Empresa
@@ -20,6 +21,7 @@ class EmpresaDetailAPIView(generics.RetrieveAPIView):
 
 # View para REGISTAR um novo utilizador e empresa
 class RegisterView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         user_serializer = UserSerializer(data=request.data)
         if user_serializer.is_valid():
@@ -34,7 +36,11 @@ class RegisterView(APIView):
                 contatos=request.data.get('contatos')
             )
             return Response(user_serializer.data, status=status.HTTP_201_CREATED)
-        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # ---- LINHA DE DEBUG ADICIONADA ----
+            # Esta linha irá imprimir o erro exato no seu terminal
+            print("--- ERRO DE VALIDAÇÃO NO REGISTRO:", user_serializer.errors, "---")
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # View para fazer LOGIN e obter um token
 class LoginView(ObtainAuthToken):
@@ -51,7 +57,7 @@ class LoginView(ObtainAuthToken):
             'nome': responsavel_nome
         })
 
-# View para o utilizador logado ver e ATUALIZAR os dados da sua própria empresa
+# Substitua a sua classe MyEmpresaAPIView por esta:
 class MyEmpresaAPIView(generics.RetrieveUpdateAPIView):
     """
     View para o utilizador logado ver e atualizar os dados da sua própria empresa.
@@ -60,9 +66,10 @@ class MyEmpresaAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = EmpresaProfileSerializer
 
     def get_object(self):
+        print(f"--- API 'my-empresa' FOI CHAMADA PELO USUÁRIO: {self.request.user} ---")
         try:
             # Esta linha é a mais importante: ela busca a empresa
-            # especificamente ligada ao 'user' que fez o pedido.
+            # que está especificamente ligada ao 'user' que fez o pedido.
             return self.request.user.empresa
         except Empresa.DoesNotExist:
             # Se não encontrar (ex: para um superuser sem empresa),
