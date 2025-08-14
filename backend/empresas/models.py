@@ -40,3 +40,23 @@ class Produto(models.Model):
 
     def __str__(self):
         return self.nome
+    
+class Produto(models.Model):
+    # Ligação: Cada produto pertence a uma empresa.
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name='produtos')
+
+    # Atributos do produto, baseados no MVP
+    nome = models.CharField(max_length=255)
+    descricao = models.TextField(blank=True) # Descrição é opcional
+    # Para a foto, começaremos com um placeholder.
+    foto_placeholder = models.CharField(max_length=100, blank=True)
+    ncm_hs = models.CharField("NCM/HS", max_length=50, blank=True)
+    certificacoes = models.CharField(max_length=255, blank=True)
+    ativo = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Produto"
+        verbose_name_plural = "Produtos"
+
+    def __str__(self):
+        return self.nome

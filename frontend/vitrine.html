@@ -30,33 +30,17 @@
 
     <div class="content-section">
         <h3>Produtos Cadastrados</h3>
-        <div class="product-list">
-            <div class="product-list-item">
-                <span class="product-name">Soja em Grãos (Saca 60kg)</span>
-                <span class="product-status status-active">Ativo</span>
-                <div class="product-actions">
-                    <a href="#" class="action-btn">Editar</a>
-                    <a href="#" class="action-btn-delete">Excluir</a>
-                </div>
-            </div>
-            <div class="product-list-item">
-                <span class="product-name">Polpa de Cupuaçu (1kg)</span>
-                <span class="product-status status-inactive">Inativo</span>
-                <div class="product-actions">
-                    <a href="#" class="action-btn">Editar</a>
-                    <a href="#" class="action-btn-delete">Excluir</a>
-                </div>
-            </div>
-        </div>
+        <div class="product-list"></div>
     </div>
 
     <div class="content-section">
         <h3>Adicionar Novo Produto</h3>
         <div class="form-container">
-            <form>
+            <form id="add-product-form">
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="produto-nome">Nome do Produto/Serviço</label>
-                    <input type="text" id="produto-nome" name="produto-nome" required>
+                    <input type="text" id="produto-nome" name="nome" required>
                 </div>
                 <div class="form-group">
                     <label for="produto-fotos">Fotos</label>

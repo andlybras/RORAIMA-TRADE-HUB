@@ -44,3 +44,4 @@ class ProdutoSerializer(serializers.ModelSerializer):
         model = Produto
         # Vamos traduzir todos os campos do nosso modelo Produto
         fields = '__all__'
+        read_only_fields = ['empresa']

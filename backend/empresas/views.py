@@ -93,4 +93,15 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         """
         Garante que um novo produto seja associado à empresa do utilizador logado.
         """
+        # ---- LINHA DE DEBUG ADICIONADA ----
+        # Se a validação falhar, o DRF nem chega a chamar esta função.
+        # A validação acontece antes. Vamos adicionar a verificação no sítio certo.
         serializer.save(empresa=self.request.user.empresa)
+
+    # ---- NOVA FUNÇÃO ADICIONADA PARA DEBUG ----
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            # Se os dados não forem válidos, imprime os erros no terminal
+            print("--- ERRO DE VALIDAÇÃO AO CRIAR PRODUTO:", serializer.errors, "---")
+        return super().create(request, *args, **kwargs)

@@ -1,20 +1,15 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    EmpresaListAPIView,
-    EmpresaDetailAPIView,
-    RegisterView,
-    LoginView,
-    MyEmpresaAPIView,
-    ProdutoViewSet # Importe o nosso novo ViewSet
+    EmpresaListAPIView, EmpresaDetailAPIView, RegisterView,
+    LoginView, MyEmpresaAPIView, ProdutoViewSet
 )
 
-# Cria um roteador
+# Cria um roteador e regista o nosso ViewSet de produtos
 router = DefaultRouter()
-# Regista o nosso ProdutoViewSet com o roteador
 router.register(r'produtos', ProdutoViewSet, basename='produto')
 
-# As nossas URLs antigas para as empresas continuam as mesmas
+# As nossas URLs antigas continuam aqui
 urlpatterns = [
     path('', EmpresaListAPIView.as_view(), name='empresa-list-api'),
     path('<int:pk>/', EmpresaDetailAPIView.as_view(), name='empresa-detail-api'),
@@ -22,6 +17,6 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login-api'),
     path('my-empresa/', MyEmpresaAPIView.as_view(), name='my-empresa-api'),
 
-    # Adiciona as URLs geradas automaticamente pelo roteador para os produtos
+    # Adiciona as URLs geradas pelo roteador (/produtos/, /produtos/1/, etc.)
     path('', include(router.urls)),
 ]

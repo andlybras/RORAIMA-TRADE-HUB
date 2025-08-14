@@ -300,6 +300,87 @@ function renderCursosList() {
         });
 }
 
+// Função para buscar e renderizar a lista de produtos na página "Minha Vitrine"
+// Função para buscar e renderizar a lista de produtos na página "Minha Vitrine"
+function renderMyProducts() {
+    const productListContainer = document.querySelector(".product-list");
+    if (!productListContainer) return;
+
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    fetch('/api/empresas/produtos/', {
+        method: 'GET',
+        headers: { 'Authorization': `Token ${token}` }
+    })
+    .then(response => response.json())
+    .then(produtos => {
+        productListContainer.innerHTML = "";
+        if (produtos.length === 0) {
+            productListContainer.innerHTML = "<p>Você ainda não tem produtos cadastrados.</p>";
+            return;
+        }
+        produtos.forEach(produto => {
+            const productHTML = `
+                <div class="product-list-item">
+                    <span class="product-name">${produto.nome}</span>
+                    <span class="product-status ${produto.ativo ? 'status-active' : 'status-inactive'}">
+                        ${produto.ativo ? 'Ativo' : 'Inativo'}
+                    </span>
+                    <div class="product-actions">
+                        <a href="#" class="action-btn">Editar</a>
+                        <a href="#" class="action-btn-delete">Excluir</a>
+                    </div>
+                </div>
+            `;
+            productListContainer.innerHTML += productHTML;
+        });
+    });
+}
+
+// Função para lidar com a adição de um novo produto
+// Função para lidar com a adição de um novo produto
+function handleAddProduct() {
+    const form = document.getElementById("add-product-form");
+    if (!form) return;
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const token = localStorage.getItem('authToken');
+        const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        fetch('/api/empresas/produtos/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Token ${token}`,
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                // Se a resposta não for ok, lê o erro do corpo da resposta
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(newProduct => {
+            alert('Produto adicionado com sucesso!');
+            form.reset(); // Limpa o formulário
+            renderMyProducts(); // Atualiza a lista de produtos na tela
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            // Exibe uma mensagem de erro mais detalhada, se disponível
+            const errorMessage = error.detail || 'Ocorreu um erro ao adicionar o produto.';
+            alert(errorMessage);
+        });
+    });
+}
+
 // Evento principal que "orquestra" tudo
 document.addEventListener("DOMContentLoaded", function() {
     handleAuthentication();
@@ -310,5 +391,6 @@ document.addEventListener("DOMContentLoaded", function() {
     populateFilters();
     handleSearchForm();
     populateProfileForm();
-    renderCursosList();
+    renderMyProducts(); // <-- ADICIONE ESTA LINHA
+    handleAddProduct();
 });
