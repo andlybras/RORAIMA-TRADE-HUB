@@ -29,7 +29,7 @@
     <p>Atualize as informações da sua empresa que serão exibidas publicamente na plataforma.</p>
 
     <div class="form-container">
-        <form id="perfil-form">
+        <form id="perfil-form" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
                 <label for="razao-social">Razão Social</label>

@@ -34,7 +34,8 @@ class EmpresaProfileSerializer(serializers.ModelSerializer):
             'cnpj', 
             'nome_fantasia', 
             'descricao', 
-            'contatos'
+            'contatos',
+            'logomarca'
         ]
         # ...e dizemos ao tradutor que a razão social e o cnpj são apenas para leitura.
         read_only_fields = ['razao_social', 'cnpj']

@@ -2,24 +2,25 @@ from django.http import Http404
 from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
+from rest_framework.parsers import MultiPartParser, FormParser # IMPORTAÇÃO CRÍTICA
 from .models import Empresa, Produto
-from .serializers import EmpresaSerializer, UserSerializer, EmpresaProfileSerializer, ProdutoSerializer
+from .serializers import (
+    EmpresaSerializer, UserSerializer, EmpresaProfileSerializer, ProdutoSerializer
+)
 
-# View para LISTAR todas as empresas (pública)
 class EmpresaListAPIView(generics.ListAPIView):
     queryset = Empresa.objects.all()
     serializer_class = EmpresaSerializer
+    permission_classes = [AllowAny] # Tornar a lista pública
 
-# View para ver os DETALHES de uma empresa (pública)
 class EmpresaDetailAPIView(generics.RetrieveAPIView):
     queryset = Empresa.objects.all()
     serializer_class = EmpresaSerializer
+    permission_classes = [AllowAny] # Tornar os detalhes públicos
 
-# View para REGISTAR um novo utilizador e empresa
 class RegisterView(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
@@ -36,13 +37,10 @@ class RegisterView(APIView):
                 contatos=request.data.get('contatos')
             )
             return Response(user_serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            # ---- LINHA DE DEBUG ADICIONADA ----
-            # Esta linha irá imprimir o erro exato no seu terminal
-            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# View para fazer LOGIN e obter um token
 class LoginView(ObtainAuthToken):
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -56,52 +54,25 @@ class LoginView(ObtainAuthToken):
             'nome': responsavel_nome
         })
 
-# Substitua a sua classe MyEmpresaAPIView por esta:
 class MyEmpresaAPIView(generics.RetrieveUpdateAPIView):
-    """
-    View para o utilizador logado ver e atualizar os dados da sua própria empresa.
-    """
     permission_classes = [IsAuthenticated]
     serializer_class = EmpresaProfileSerializer
+    # LINHA CRÍTICA QUE ENSINA A "DESEMPACOTAR" FICHEIROS:
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_object(self):
         try:
-            # Esta linha é a mais importante: ela busca a empresa
-            # que está especificamente ligada ao 'user' que fez o pedido.
             return self.request.user.empresa
         except Empresa.DoesNotExist:
-            # Se não encontrar (ex: para um superuser sem empresa),
-            # levanta uma exceção que o DRF entende como "Não Encontrado".
             raise Http404
-        
+
 class ProdutoViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint que permite aos utilizadores logados ver e editar os seus produtos.
-    """
     serializer_class = ProdutoSerializer
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_queryset(self):
-        """
-        Esta view deve retornar uma lista de todos os produtos
-        para o utilizador atualmente autenticado.
-        """
-        user = self.request.user
-        return Produto.objects.filter(empresa=user.empresa)
+        return Produto.objects.filter(empresa=self.request.user.empresa)
 
     def perform_create(self, serializer):
-        """
-        Garante que um novo produto seja associado à empresa do utilizador logado.
-        """
-        # ---- LINHA DE DEBUG ADICIONADA ----
-        # Se a validação falhar, o DRF nem chega a chamar esta função.
-        # A validação acontece antes. Vamos adicionar a verificação no sítio certo.
         serializer.save(empresa=self.request.user.empresa)
-
-    # ---- NOVA FUNÇÃO ADICIONADA PARA DEBUG ----
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if not serializer.is_valid():
-            # Se os dados não forem válidos, imprime os erros no terminal
-            print("--- ERRO DE VALIDAÇÃO AO CRIAR PRODUTO:", serializer.errors, "---")
-        return super().create(request, *args, **kwargs)

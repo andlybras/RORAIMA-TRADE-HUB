@@ -181,54 +181,42 @@ function handleAuthentication() {
 // Função para popular E ATUALIZAR o formulário de perfil
 function populateProfileForm() {
     const form = document.getElementById("perfil-form");
-    if (!form) return; // Só executa se estivermos na página de perfil
+    if (!form) return;
 
     const token = localStorage.getItem('authToken');
-    if (!token) {
-        // Se não houver token, não podemos fazer nada, a função de autenticação já deve ter redirecionado
-        return;
-    }
+    if (!token) return;
 
-    // --- PARTE 1: BUSCAR E PREENCHER OS DADOS ---
+    // PARTE 1: BUSCAR E PREENCHER OS DADOS (continua igual)
     fetch('/api/empresas/my-empresa/', {
         method: 'GET',
-        headers: {
-            'Authorization': `Token ${token}`
-        }
+        headers: { 'Authorization': `Token ${token}` }
     })
-    .then(response => {
-        if (!response.ok) {
-            console.warn("Utilizador logado não tem um perfil de empresa associado.");
-            return Promise.reject('Sem perfil de empresa.');
-        }
-        return response.json();
-    })
+    .then(response => response.ok ? response.json() : Promise.reject('Falha ao carregar dados'))
     .then(data => {
-        // Preenche os campos do formulário com os dados recebidos da API
         form.querySelector('[name="nome_fantasia"]').value = data.nome_fantasia || '';
         form.querySelector('[name="descricao"]').value = data.descricao || '';
-        form.querySelector('[name="razao_social"]').value = data.razao_social || '-';
-        form.querySelector('[name="cnpj"]').value = data.cnpj || '-';
+        form.querySelector('[name="razao_social"]').value = data.razao_social || '';
+        form.querySelector('[name="cnpj"]').value = data.cnpj || '';
     })
     .catch(error => console.error("Aviso ao popular perfil:", error));
 
-    // --- PARTE 2: ENVIAR AS ATUALIZAÇÕES AO CLICAR EM "SALVAR" ---
+    // PARTE 2: ENVIAR AS ATUALIZAÇÕES (A VERSÃO CORRIGIDA)
     form.addEventListener('submit', function(event) {
         event.preventDefault();
 
-        // Pega o token CSRF do input escondido que o Django criou
         const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+        // Usaremos este objeto FormData diretamente, sem o converter
+        const formData = new FormData(form); 
 
         fetch('/api/empresas/my-empresa/', {
             method: 'PATCH',
             headers: {
-                'Content-Type': 'application/json',
+                // NÃO definimos o 'Content-Type'. O navegador fará isso por nós
+                // quando enviamos FormData, incluindo o 'boundary' correto.
                 'Authorization': `Token ${token}`,
-                'X-CSRFToken': csrfToken // O código de segurança
+                'X-CSRFToken': csrfToken
             },
-            body: JSON.stringify(data)
+            body: formData // Enviamos o objeto FormData DIRETAMENTE
         })
         .then(response => {
             if (!response.ok) {
@@ -238,8 +226,10 @@ function populateProfileForm() {
         })
         .then(updatedData => {
             alert('Perfil atualizado com sucesso!');
+            // Não recarregamos a página para uma melhor experiência
         })
         .catch(error => {
+            console.error('Erro:', error);
             alert('Ocorreu um erro ao atualizar o perfil.');
         });
     });
