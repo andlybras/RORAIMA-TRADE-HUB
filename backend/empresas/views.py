@@ -1,13 +1,13 @@
 from django.http import Http404
-from rest_framework import generics, status
+from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from .models import Empresa
-from .serializers import EmpresaSerializer, UserSerializer, EmpresaProfileSerializer
+from .models import Empresa, Produto
+from .serializers import EmpresaSerializer, UserSerializer, EmpresaProfileSerializer, ProdutoSerializer
 
 # View para LISTAR todas as empresas (pública)
 class EmpresaListAPIView(generics.ListAPIView):
@@ -73,3 +73,24 @@ class MyEmpresaAPIView(generics.RetrieveUpdateAPIView):
             # Se não encontrar (ex: para um superuser sem empresa),
             # levanta uma exceção que o DRF entende como "Não Encontrado".
             raise Http404
+        
+class ProdutoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint que permite aos utilizadores logados ver e editar os seus produtos.
+    """
+    serializer_class = ProdutoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Esta view deve retornar uma lista de todos os produtos
+        para o utilizador atualmente autenticado.
+        """
+        user = self.request.user
+        return Produto.objects.filter(empresa=user.empresa)
+
+    def perform_create(self, serializer):
+        """
+        Garante que um novo produto seja associado à empresa do utilizador logado.
+        """
+        serializer.save(empresa=self.request.user.empresa)

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Empresa
+from .models import Empresa, Produto
 
 # Serializer principal para a Empresa
 class EmpresaSerializer(serializers.ModelSerializer):
@@ -38,3 +38,9 @@ class EmpresaProfileSerializer(serializers.ModelSerializer):
         ]
         # ...e dizemos ao tradutor que a razão social e o cnpj são apenas para leitura.
         read_only_fields = ['razao_social', 'cnpj']
+        
+class ProdutoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Produto
+        # Vamos traduzir todos os campos do nosso modelo Produto
+        fields = '__all__'
