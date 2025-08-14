@@ -302,15 +302,14 @@ function renderCursosList() {
 
 // Função para buscar e renderizar a lista de produtos na página "Minha Vitrine"
 // Função para buscar e renderizar a lista de produtos na página "Minha Vitrine"
+// Função para buscar e renderizar a lista de produtos
 function renderMyProducts() {
     const productListContainer = document.querySelector(".product-list");
     if (!productListContainer) return;
-
     const token = localStorage.getItem('authToken');
     if (!token) return;
 
     fetch('/api/empresas/produtos/', {
-        method: 'GET',
         headers: { 'Authorization': `Token ${token}` }
     })
     .then(response => response.json())
@@ -324,12 +323,10 @@ function renderMyProducts() {
             const productHTML = `
                 <div class="product-list-item">
                     <span class="product-name">${produto.nome}</span>
-                    <span class="product-status ${produto.ativo ? 'status-active' : 'status-inactive'}">
-                        ${produto.ativo ? 'Ativo' : 'Inativo'}
-                    </span>
+                    <span class="product-status ${produto.ativo ? 'status-active' : 'status-inactive'}">${produto.ativo ? 'Ativo' : 'Inativo'}</span>
                     <div class="product-actions">
-                        <a href="#" class="action-btn">Editar</a>
-                        <a href="#" class="action-btn-delete">Excluir</a>
+                        <button class="action-btn edit-btn" data-id="${produto.id}">Editar</button>
+                        <button class="action-btn-delete delete-btn" data-id="${produto.id}">Excluir</button>
                     </div>
                 </div>
             `;
@@ -381,6 +378,93 @@ function handleAddProduct() {
     });
 }
 
+// Função para lidar com a Edição e Exclusão de produtos
+function handleProductActions() {
+    const productList = document.querySelector(".product-list");
+    const modal = document.getElementById("edit-product-modal");
+    const editForm = document.getElementById("edit-product-form");
+    const closeModalBtn = document.querySelector(".close-modal");
+
+    if (!productList || !modal) return;
+
+    // Ouvinte para os cliques na lista de produtos
+    productList.addEventListener('click', function(event) {
+        const target = event.target;
+        const token = localStorage.getItem('authToken');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const id = target.dataset.id;
+
+        // --- LÓGICA DE EXCLUSÃO ---
+        if (target.classList.contains('delete-btn')) {
+            if (confirm(`Tem a certeza de que deseja excluir este produto?`)) {
+                fetch(`/api/empresas/produtos/${id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'X-CSRFToken': csrfToken
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Falha ao excluir o produto.');
+                    alert('Produto excluído com sucesso!');
+                    renderMyProducts(); // Atualiza a lista
+                })
+                .catch(error => alert('Ocorreu um erro ao excluir o produto.'));
+            }
+        }
+
+        // --- LÓGICA DE EDIÇÃO (PARTE 1: ABRIR E PREENCHER O MODAL) ---
+        if (target.classList.contains('edit-btn')) {
+            fetch(`/api/empresas/produtos/${id}/`, {
+                headers: { 'Authorization': `Token ${token}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+                editForm.querySelector('#edit-product-id').value = data.id;
+                editForm.querySelector('#edit-produto-nome').value = data.nome;
+                editForm.querySelector('#edit-produto-ncm').value = data.ncm_hs;
+                editForm.querySelector('#edit-produto-certificacoes').value = data.certificacoes;
+                modal.style.display = 'flex'; // Mostra o modal
+            });
+        }
+    });
+
+    // --- LÓGICA DE EDIÇÃO (PARTE 2: SALVAR AS ALTERAÇÕES) ---
+    editForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const token = localStorage.getItem('authToken');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const id = editForm.querySelector('#edit-product-id').value;
+        const formData = new FormData(editForm);
+        const data = Object.fromEntries(formData.entries());
+
+        fetch(`/api/empresas/produtos/${id}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Token ${token}`,
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.ok ? response.json() : Promise.reject('Falha ao atualizar'))
+        .then(updatedData => {
+            alert('Produto atualizado com sucesso!');
+            modal.style.display = 'none'; // Esconde o modal
+            renderMyProducts(); // Atualiza a lista
+        })
+        .catch(error => alert('Ocorreu um erro ao atualizar o produto.'));
+    });
+
+    // Lógica para fechar o modal
+    closeModalBtn.onclick = () => modal.style.display = 'none';
+    window.onclick = (event) => {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
+
 // Evento principal que "orquestra" tudo
 document.addEventListener("DOMContentLoaded", function() {
     handleAuthentication();
@@ -393,4 +477,5 @@ document.addEventListener("DOMContentLoaded", function() {
     populateProfileForm();
     renderMyProducts(); // <-- ADICIONE ESTA LINHA
     handleAddProduct();
+    handleProductActions();
 });
