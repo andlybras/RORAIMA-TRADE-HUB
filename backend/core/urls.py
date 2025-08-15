@@ -26,6 +26,7 @@ urlpatterns = [
     path('termos-de-uso/', views.termos_de_uso, name='termos-de-uso'),
     path('acessibilidade/', views.acessibilidade, name='acessibilidade'),
     path('cursos/', views.cursos, name='cursos'),
+    path('perguntas-frequentes/', views.perguntas_frequentes, name='perguntas-frequentes'),
     path('api/empresas/', include('empresas.urls')),
     path('api/cursos/', include('cursos.urls')),
 ]

@@ -45,3 +45,27 @@ class Produto(models.Model):
 
     def __str__(self):
         return self.nome
+# Adicione estas duas novas classes abaixo delas
+
+class CategoriaFAQ(models.Model):
+    nome = models.CharField(max_length=100, unique=True, verbose_name="Nome da Categoria")
+
+    class Meta:
+        verbose_name = "Categoria de FAQ"
+        verbose_name_plural = "Categorias de FAQ"
+
+    def __str__(self):
+        return self.nome
+
+class PerguntaFAQ(models.Model):
+    categoria = models.ForeignKey(CategoriaFAQ, on_delete=models.CASCADE, related_name='perguntas', verbose_name="Categoria")
+    pergunta = models.CharField(max_length=255, verbose_name="Pergunta")
+    resposta = models.TextField(verbose_name="Resposta")
+    ativa = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Pergunta Frequente"
+        verbose_name_plural = "Perguntas Frequentes"
+
+    def __str__(self):
+        return self.pergunta

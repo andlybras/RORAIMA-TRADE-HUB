@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perguntas Frequentes - Roraima Trade Hub</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <header class="header">
+        {% include 'header.html' %}
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1>Perguntas Frequentes (FAQ)</h1>
+                <p>Encontre respostas rápidas para as dúvidas mais comuns sobre a nossa plataforma.</p>
+            </div>
+
+            <div class="faq-container">
+                {% for categoria in categorias %}
+                    <div class="faq-category">
+                        <h2>{{ categoria.nome }}</h2>
+                        <div class="faq-list">
+                            {% for item in categoria.perguntas.all %}
+                                {% if item.ativa %}
+                                    <div class="faq-item">
+                                        <button class="faq-question">
+                                            <span>{{ item.pergunta }}</span>
+                                            <span class="faq-icon">+</span>
+                                        </button>
+                                        <div class="faq-answer">
+                                            <p>{{ item.resposta|linebreaks }}</p>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>Nenhuma pergunta frequente cadastrada no momento.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        {% include 'footer.html' %}
+    </footer>
+
+    <script src="{% static 'script.js' %}"></script>
+</body>
+</html>

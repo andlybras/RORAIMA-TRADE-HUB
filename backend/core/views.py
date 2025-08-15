@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from empresas.models import CategoriaFAQ
 
 def homepage(request):
     return render(request, 'index.html')
@@ -59,3 +60,15 @@ def acessibilidade(request):
 
 def cursos(request):
     return render(request, 'cursos.html')
+
+# Adicione esta função no final do arquivo
+def perguntas_frequentes(request):
+    # Buscamos todas as categorias que têm perguntas ativas associadas a elas.
+    # O prefetch_related é um truque de performance: ele busca todas as perguntas
+    # de uma vez só, evitando múltiplas consultas ao banco de dados dentro do template.
+    categorias = CategoriaFAQ.objects.prefetch_related('perguntas').filter(perguntas__ativa=True).distinct()
+    
+    context = {
+        'categorias': categorias
+    }
+    return render(request, 'perguntas-frequentes.html', context)

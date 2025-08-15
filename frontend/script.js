@@ -486,6 +486,39 @@ function populateDashboardHeader() {
     });
 }
 
+function handleFaqAccordion() {
+    const faqItems = document.querySelectorAll(".faq-item");
+
+    if (!faqItems.length) return; // Se não houver itens de FAQ na página, não faz nada
+
+    faqItems.forEach(item => {
+        const questionButton = item.querySelector(".faq-question");
+        const answerPanel = item.querySelector(".faq-answer");
+        const icon = questionButton.querySelector(".faq-icon");
+
+        questionButton.addEventListener("click", () => {
+            const isActive = item.classList.contains("active");
+
+            // Opcional: Fechar todos os outros antes de abrir o novo
+            // faqItems.forEach(i => {
+            //     i.classList.remove("active");
+            //     i.querySelector(".faq-answer").style.maxHeight = null;
+            //     i.querySelector(".faq-icon").textContent = "+";
+            // });
+
+            if (!isActive) {
+                item.classList.add("active");
+                answerPanel.style.maxHeight = answerPanel.scrollHeight + "px";
+                icon.textContent = "-";
+            } else {
+                item.classList.remove("active");
+                answerPanel.style.maxHeight = null;
+                icon.textContent = "+";
+            }
+        });
+    });
+}
+
 // Evento principal que "orquestra" tudo
 document.addEventListener("DOMContentLoaded", function() {
     handleAuthentication();
@@ -500,4 +533,5 @@ document.addEventListener("DOMContentLoaded", function() {
     renderMyProducts(); // <-- ADICIONE ESTA LINHA
     handleAddProduct();
     handleProductActions();
+    handleFaqAccordion();
 });

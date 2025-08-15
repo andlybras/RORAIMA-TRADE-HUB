@@ -927,3 +927,68 @@ footer {
     font-size: 16px;
     color: #333;
 }
+
+/* frontend/style.css */
+
+/* --- Estilos da Página de Perguntas Frequentes (FAQ) --- */
+.faq-container {
+    max-width: 900px;
+    margin: 0 auto; /* Centraliza o container de perguntas */
+}
+
+.faq-category {
+    margin-bottom: 40px;
+}
+
+.faq-category h2 {
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+    color: #0056b3;
+}
+
+.faq-item {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.faq-question {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    padding: 20px 0;
+    text-align: left;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #333;
+}
+
+.faq-question:hover {
+    color: #007bff;
+}
+
+.faq-icon {
+    font-size: 24px;
+    font-weight: bold;
+    transition: transform 0.2s ease-in-out;
+}
+
+.faq-item.active .faq-icon {
+    transform: rotate(45deg); /* Opcional: animação no ícone */
+}
+
+.faq-answer {
+    max-height: 0; /* Começa fechado */
+    overflow: hidden;
+    transition: max-height 0.3s ease-out; /* Animação suave */
+    padding: 0 15px;
+}
+
+.faq-answer p {
+    margin-top: 0;
+    padding-bottom: 20px;
+    line-height: 1.7;
+    color: #555;
+}
