@@ -56,25 +56,25 @@ class CNAEListAPIView(generics.ListAPIView):
 
 # ... (outras classes) ...
 
+# empresas/views.py
+
 class RegisterView(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
         user_serializer = UserSerializer(data=request.data)
         if user_serializer.is_valid():
             user = user_serializer.save()
-            user.is_active = False
+            user.is_active = False # Começa inativo até aprovação
             user.save()
 
-            # --- LÓGICA DE CRIAÇÃO DA EMPRESA ATUALIZADA ---
-
-            # 1. Primeiro, criamos a empresa com os campos diretos.
-            # Note que usamos 'cnae_principal_id' para passar o ID diretamente.
+            # --- LÓGICA DE CRIAÇÃO CORRIGIDA ---
             empresa = Empresa.objects.create(
                 user=user,
                 razao_social=request.data.get('razao_social'),
                 nome_fantasia=request.data.get('nome_fantasia'),
                 cnpj=request.data.get('cnpj'),
-                cnae_principal_id=request.data.get('cnae_principal'), # <-- Passa o ID do CNAE Principal
+                # Passamos o ID do CNAE Principal diretamente.
+                cnae_principal_id=request.data.get('cnae_principal'),
                 inscricao_estadual=request.data.get('inscricao_estadual', ''),
                 endereco_sede=request.data.get('endereco_sede', ''),
                 responsavel_nome=request.data.get('responsavel_nome'),
@@ -83,14 +83,13 @@ class RegisterView(APIView):
                 contatos=request.data.get('contatos')
             )
 
-            # 2. Depois, lidamos com a relação ManyToMany (CNAEs Secundários).
-            cnaes_secundarios_ids = request.data.get('cnaes_secundarios', []) # Pega a lista de IDs
+            cnaes_secundarios_ids = request.data.get('cnaes_secundarios', [])
             if cnaes_secundarios_ids:
                 empresa.cnaes_secundarios.set(cnaes_secundarios_ids)
             
-            # --- FIM DA LÓGICA ATUALIZADA ---
+            # --- FIM DA CORREÇÃO ---
 
-            return Response(user_serializer.data, status=status.HTTP_201_CREATED)
+            return Response({'status': 'sucesso'}, status=status.HTTP_201_CREATED)
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # ... (o resto do seu arquivo views.py) ...

@@ -35,38 +35,22 @@ class UserSerializer(serializers.ModelSerializer):
 # ... (O resto do seu arquivo, UserSerializer etc., continua igual) ...
 
 # Serializer específico para ATUALIZAR o perfil da empresa
+# empresas/serializers.py
+
 class EmpresaProfileSerializer(serializers.ModelSerializer):
+    # Vamos pedir ao "tradutor" para nos dar o nome completo do CNAE, não apenas o ID
+    cnae_principal = serializers.StringRelatedField()
+    cnaes_secundarios = serializers.StringRelatedField(many=True)
+
     class Meta:
         model = Empresa
-        # Agora incluímos TODOS os campos que queremos mostrar na página
         fields = [
-            'razao_social', 
-            'cnpj', 
-            'nome_fantasia', 
-            'descricao',
-            'logomarca',
-            # --- CAMPOS ADICIONADOS ---
-            'cnae',
-            'inscricao_estadual',
-            'endereco_sede',
-            'responsavel_nome',
-            'responsavel_funcao',
-            'email',
-            'contatos',
+            'razao_social', 'cnpj', 'nome_fantasia', 'descricao', 'logomarca',
+            'cnae_principal', 'cnaes_secundarios', # <-- Adicionamos aqui
+            'inscricao_estadual', 'endereco_sede', 'responsavel_nome',
+            'responsavel_funcao', 'email', 'contatos'
         ]
-        # E aqui, listamos TODOS os campos que NÃO SÃO editáveis pelo usuário.
-        # Deixamos de fora apenas 'nome_fantasia', 'descricao' e 'logomarca'.
-        read_only_fields = [
-            'razao_social', 
-            'cnpj',
-            'cnae',
-            'inscricao_estadual',
-            'endereco_sede',
-            'responsavel_nome',
-            'responsavel_funcao',
-            'email',
-            'contatos',
-        ]
+        read_only_fields = fields # Tornamos todos os campos de perfil somente leitura por enquanto
 
 # ... (Seu ProdutoSerializer continua aqui) ...
         

@@ -444,11 +444,8 @@ function handleAuthentication() {
     }
 }
 
-// frontend/script.js
+// ATENÇÃO: SUBSTITUA SUA FUNÇÃO ANTIGA populateProfileForm POR ESTA
 
-// ... (todo o resto do seu JS continua igual) ...
-
-// Função para popular e ATUALIZAR o formulário de perfil (VERSÃO ATUALIZADA)
 function populateProfileForm() {
     const form = document.getElementById("perfil-form");
     if (!form) return;
@@ -456,38 +453,60 @@ function populateProfileForm() {
     const token = localStorage.getItem('authToken');
     if (!token) return;
 
-    // --- PARTE 1: BUSCAR E PREENCHER OS DADOS (ATUALIZADA) ---
-    // Esta parte agora vai preencher TODOS os campos do formulário.
+    // PARTE 1: BUSCAR E PREENCHER OS DADOS (VERSÃO CORRIGIDA)
     fetch('/api/empresas/my-empresa/', {
         method: 'GET',
         headers: { 'Authorization': `Token ${token}` }
     })
-    .then(response => response.ok ? response.json() : Promise.reject('Falha ao carregar dados'))
+    .then(response => response.ok ? response.json() : Promise.reject('Falha ao carregar dados do perfil'))
     .then(data => {
-        // Campos editáveis
+        // --- PREENCHIMENTO DOS CAMPOS DE TEXTO SIMPLES ---
         form.querySelector('[name="nome_fantasia"]').value = data.nome_fantasia || '';
         form.querySelector('[name="descricao"]').value = data.descricao || '';
-        
-        // Campos apenas para visualização
         form.querySelector('[name="razao_social"]').value = data.razao_social || '';
         form.querySelector('[name="cnpj"]').value = data.cnpj || '';
-        form.querySelector('[name="cnae"]').value = data.cnae || '';
         form.querySelector('[name="inscricao_estadual"]').value = data.inscricao_estadual || '';
         form.querySelector('[name="endereco_sede"]').value = data.endereco_sede || '';
         form.querySelector('[name="responsavel_nome"]').value = data.responsavel_nome || '';
         form.querySelector('[name="responsavel_funcao"]').value = data.responsavel_funcao || '';
         form.querySelector('[name="email"]').value = data.email || '';
         form.querySelector('[name="contatos"]').value = data.contatos || '';
-    })
-    .catch(error => console.error("Aviso ao popular perfil:", error));
 
-    // --- PARTE 2: ENVIAR AS ATUALIZAÇÕES (SEM NENHUMA ALTERAÇÃO) ---
-    // Esta lógica de envio permanece INTACTA para não afetar o upload do logotipo.
+        // --- LÓGICA CORRIGIDA PARA EXIBIR OS CNAES ---
+
+        // 1. Preenche o campo de texto do CNAE Principal
+        // (lembre-se que no perfil.html o campo se chama 'cnae_principal_display')
+        const cnaePrincipalInput = form.querySelector('[name="cnae_principal_display"]');
+        if (cnaePrincipalInput) {
+            cnaePrincipalInput.value = data.cnae_principal || 'Não informado';
+        }
+
+        // 2. Cria os "pills" para os CNAEs Secundários
+        const pillsContainer = document.getElementById('cnae-secundario-pills');
+        if (pillsContainer) {
+            pillsContainer.innerHTML = ''; // Limpa o contêiner primeiro
+            if (data.cnaes_secundarios && data.cnaes_secundarios.length > 0) {
+                data.cnaes_secundarios.forEach(cnae_str => {
+                    const pill = document.createElement('div');
+                    pill.className = 'cnae-pill-display'; // Usa a classe de estilo que criamos
+                    pill.textContent = cnae_str;
+                    pillsContainer.appendChild(pill);
+                });
+            } else {
+                // Se não houver CNAEs secundários, exibe uma mensagem
+                pillsContainer.innerHTML = '<p style="font-style: italic; color: #6c757d;">Nenhum CNAE secundário cadastrado.</p>';
+            }
+        }
+    })
+    .catch(error => console.error("Erro ao popular o perfil da empresa:", error));
+
+    // PARTE 2: LÓGICA DE SUBMISSÃO (permanece a mesma)
+    // Não mexemos aqui para manter o upload do logo seguro.
     form.addEventListener('submit', function(event) {
         event.preventDefault();
 
         const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
-        const formData = new FormData(form); 
+        const formData = new FormData(form);
 
         fetch('/api/empresas/my-empresa/', {
             method: 'PATCH',
@@ -495,27 +514,24 @@ function populateProfileForm() {
                 'Authorization': `Token ${token}`,
                 'X-CSRFToken': csrfToken
             },
-            body: formData 
+            body: formData
         })
         .then(response => {
             if (!response.ok) {
-                // Tenta ler a mensagem de erro do backend para dar um feedback melhor
                 return response.json().then(err => { throw new Error(err.detail || 'Falha ao atualizar o perfil.') });
             }
             return response.json();
         })
         .then(updatedData => {
             alert('Perfil atualizado com sucesso!');
-            // Opcional: recarregar a página para ver a logomarca atualizada, se houver
-            window.location.reload(); 
+            window.location.reload();
         })
         .catch(error => {
-            console.error('Erro:', error);
+            console.error('Erro ao atualizar perfil:', error);
             alert(`Ocorreu um erro ao atualizar o perfil: ${error.message}`);
         });
     });
 }
-
 // ... (todo o resto do seu JS continua igual) ...
 
 // Função para popular os filtros de busca
