@@ -1,7 +1,13 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Empresa, Produto
+from .models import Empresa, Produto, CNAE
 
+# Serializer para o nosso dicionário de CNAEs
+class CNAESerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CNAE
+        fields = ['id', 'codigo', 'denominacao']
+        
 # Serializer principal para a Empresa
 class EmpresaSerializer(serializers.ModelSerializer):
     class Meta:

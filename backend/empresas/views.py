@@ -10,6 +10,11 @@ from .models import Empresa, Produto
 from .serializers import (
     EmpresaSerializer, UserSerializer, EmpresaProfileSerializer, ProdutoSerializer
 )
+from django.db.models import Q
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
+from .models import CNAE
+from .serializers import CNAESerializer
 
 class EmpresaListAPIView(generics.ListAPIView):
     queryset = Empresa.objects.all()
@@ -20,6 +25,36 @@ class EmpresaDetailAPIView(generics.RetrieveAPIView):
     queryset = Empresa.objects.all()
     serializer_class = EmpresaSerializer
     permission_classes = [AllowAny] # Tornar os detalhes públicos
+    
+# empresas/views.py
+
+# ... (outras importações) ...
+from .models import Empresa, Produto, CNAE # <-- Adicione CNAE à importação
+from .serializers import ( # <-- Adicione CNAESerializer à importação
+    EmpresaSerializer, UserSerializer, EmpresaProfileSerializer, ProdutoSerializer, CNAESerializer
+)
+
+# ... (suas classes EmpresaListAPIView e EmpresaDetailAPIView continuam aqui) ...
+
+# --- NOVA CLASSE ADICIONADA ---
+# Esta View vai fornecer a lista completa de CNAEs para o frontend
+class CNAEListAPIView(generics.ListAPIView):
+    serializer_class = CNAESerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        queryset = CNAE.objects.all()
+        search_term = self.request.query_params.get('search', None)
+        if search_term:
+            queryset = queryset.filter(
+                Q(codigo__icontains=search_term) | Q(denominacao__icontains=search_term)
+            )
+        return queryset
+# ... (O resto do seu arquivo views.py continua aqui) ...
+
+# empresas/views.py
+
+# ... (outras classes) ...
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -27,23 +62,38 @@ class RegisterView(APIView):
         user_serializer = UserSerializer(data=request.data)
         if user_serializer.is_valid():
             user = user_serializer.save()
-            Empresa.objects.create(
+            user.is_active = False
+            user.save()
+
+            # --- LÓGICA DE CRIAÇÃO DA EMPRESA ATUALIZADA ---
+
+            # 1. Primeiro, criamos a empresa com os campos diretos.
+            # Note que usamos 'cnae_principal_id' para passar o ID diretamente.
+            empresa = Empresa.objects.create(
                 user=user,
                 razao_social=request.data.get('razao_social'),
                 nome_fantasia=request.data.get('nome_fantasia'),
                 cnpj=request.data.get('cnpj'),
-                # ---- LINHAS ADICIONADAS ----
-                cnae=request.data.get('cnae'),
-                inscricao_estadual=request.data.get('inscricao_estadual'),
-                endereco_sede=request.data.get('endereco_sede'),
+                cnae_principal_id=request.data.get('cnae_principal'), # <-- Passa o ID do CNAE Principal
+                inscricao_estadual=request.data.get('inscricao_estadual', ''),
+                endereco_sede=request.data.get('endereco_sede', ''),
                 responsavel_nome=request.data.get('responsavel_nome'),
-                responsavel_funcao=request.data.get('responsavel_funcao'),
-                # ---- FIM DAS LINHAS ADICIONADAS ----
+                responsavel_funcao=request.data.get('responsavel_funcao', ''),
                 email=user.email,
-                contatos=request.data.get('contatos'),
+                contatos=request.data.get('contatos')
             )
+
+            # 2. Depois, lidamos com a relação ManyToMany (CNAEs Secundários).
+            cnaes_secundarios_ids = request.data.get('cnaes_secundarios', []) # Pega a lista de IDs
+            if cnaes_secundarios_ids:
+                empresa.cnaes_secundarios.set(cnaes_secundarios_ids)
+            
+            # --- FIM DA LÓGICA ATUALIZADA ---
+
             return Response(user_serializer.data, status=status.HTTP_201_CREATED)
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# ... (o resto do seu arquivo views.py) ...
 
 class LoginView(ObtainAuthToken):
     permission_classes = [AllowAny]

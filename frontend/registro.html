@@ -34,9 +34,24 @@
                         <label for="cnpj">CNPJ</label>
                         <input type="text" id="cnpj" name="cnpj" required>
                     </div>
+                    <div class="form-group autocomplete">
+                        <label for="cnae-principal-input">CNAE Principal (obrigatório)</label>
+                        <input type="text" id="cnae-principal-input" name="cnae_principal_display" placeholder="Digite o código ou a descrição do CNAE principal" required>
+                        <input type="hidden" id="cnae-principal-id" name="cnae_principal">
+                        <ul class="autocomplete-list" id="cnae-principal-suggestions"></ul>
+                    </div>
                     <div class="form-group">
-                        <label for="cnae">CNAE</label>
-                        <input type="text" id="cnae" name="cnae" required>
+                        <label for="cnae-secundario-input">CNAEs Secundários (opcional)</label>
+                        
+                        <div class="autocomplete">
+                            <input type="text" id="cnae-secundario-input" placeholder="Digite o código ou a descrição para adicionar um CNAE secundário">
+                            <ul class="autocomplete-list" id="cnae-secundario-suggestions"></ul>
+                        </div>
+
+                        <div class="cnae-pills-container" id="cnae-secundario-pills">
+                            </div>
+
+                        <select id="cnaes-secundarios-hidden" name="cnaes_secundarios" multiple style="display: none;"></select>
                     </div>
                     <div class="form-group">
                         <label for="inscricao-estadual">Inscrição Estadual (se aplicável)</label>

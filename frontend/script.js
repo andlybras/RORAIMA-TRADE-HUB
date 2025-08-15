@@ -72,6 +72,11 @@ function renderCompanyDetails() {
 
 // ---- FUNÇÃO DE REGISTRO TOTALMENTE SUBSTITUÍDA ----
 // Esta nova versão controla o envio do formulário e a exibição do modal de sucesso.
+// frontend/script.js
+
+// ... (outras funções) ...
+
+// ---- FUNÇÃO DE REGISTRO COM AJUSTE PARA MÚLTIPLA SELEÇÃO ----
 function handleRegistration() {
     const form = document.getElementById("registration-form");
     if (!form) return;
@@ -89,8 +94,19 @@ function handleRegistration() {
 
         const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
         const formData = new FormData(form);
+
+        // --- AJUSTE CRÍTICO AQUI ---
+        // 1. Pegamos a lista de todos os CNAEs secundários selecionados.
+        const cnaesSecundariosList = formData.getAll('cnaes_secundarios');
+        
+        // 2. Convertemos o resto do formulário para um objeto.
         const data = Object.fromEntries(formData.entries());
-        data.username = data.email; // Django User precisa de um username
+        
+        // 3. Substituímos a entrada única de cnaes_secundarios pela nossa lista completa.
+        data.cnaes_secundarios = cnaesSecundariosList;
+        // --- FIM DO AJUSTE ---
+
+        data.username = data.email;
 
         fetch('/api/empresas/register/', {
             method: 'POST',
@@ -109,7 +125,6 @@ function handleRegistration() {
             });
         })
         .then(data => {
-            // Em vez de um alerta, mostramos nosso modal customizado
             successModal.style.display = 'flex'; 
         })
         .catch(error => {
@@ -118,11 +133,13 @@ function handleRegistration() {
         });
     });
 
-    // Adiciona o evento para o botão OK do modal
     modalOkBtn.addEventListener("click", () => {
-        window.location.href = "/login/"; // Redireciona para a página de login
+        window.location.href = "/login/";
     });
 }
+
+
+// ... (o resto do seu arquivo script.js) ...
 
 
 // ---- NOVA FUNÇÃO PARA CONTROLAR O FORMULÁRIO MULTI-STEP ----
@@ -179,6 +196,182 @@ function handleMultiStepForm() {
     showStep(0); // Mostra o primeiro passo inicialmente
 }
 
+function setupCNAESecundariosAutocomplete() {
+    const input = document.getElementById('cnae-secundario-input');
+    const suggestionsList = document.getElementById('cnae-secundario-suggestions');
+    const pillsContainer = document.getElementById('cnae-secundario-pills');
+    const hiddenSelect = document.getElementById('cnaes-secundarios-hidden');
+    
+    if (!input) return;
+
+    let selectedIds = new Set(); // Usaremos um Set para evitar duplicatas facilmente
+
+    // Função para adicionar um "pill"
+    function addPill(cnae) {
+        // Prevenção de duplicatas
+        if (selectedIds.has(cnae.id.toString())) {
+            alert("Este CNAE já foi adicionado.");
+            return;
+        }
+
+        selectedIds.add(cnae.id.toString());
+
+        // Cria o elemento do "pill"
+        const pill = document.createElement('div');
+        pill.className = 'cnae-pill';
+        pill.dataset.id = cnae.id;
+        pill.innerHTML = `
+            <span>${cnae.codigo}</span>
+            <button type="button" class="remove-pill">&times;</button>
+        `;
+        pillsContainer.appendChild(pill);
+
+        // Adiciona a opção ao <select> oculto para que seja enviada com o formulário
+        const option = document.createElement('option');
+        option.value = cnae.id;
+        option.selected = true;
+        option.textContent = cnae.codigo; // Apenas para debug, não é necessário
+        hiddenSelect.appendChild(option);
+
+        // Limpa o campo de busca
+        input.value = '';
+        suggestionsList.style.display = 'none';
+    }
+
+    // Função para remover um "pill"
+    pillsContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-pill')) {
+            const pill = e.target.closest('.cnae-pill');
+            const idToRemove = pill.dataset.id;
+
+            selectedIds.delete(idToRemove); // Remove do nosso controle de duplicatas
+            pill.remove(); // Remove da tela
+
+            // Remove do <select> oculto
+            const optionToRemove = hiddenSelect.querySelector(`option[value="${idToRemove}"]`);
+            if (optionToRemove) {
+                optionToRemove.remove();
+            }
+        }
+    });
+
+    // Lógica do Autocomplete (similar ao CNAE Principal)
+    input.addEventListener('input', function() {
+        const value = this.value;
+        if (value.length < 2) { // Só busca a partir de 2 caracteres
+            suggestionsList.style.display = 'none';
+            return;
+        }
+
+        fetch(`/api/empresas/cnaes/?search=${value}`)
+            .then(response => response.json())
+            .then(cnaes => {
+                suggestionsList.innerHTML = '';
+                cnaes.forEach(cnae => {
+                    const li = document.createElement('li');
+                    li.textContent = `${cnae.codigo} - ${cnae.denominacao}`;
+                    li.addEventListener('click', () => addPill(cnae));
+                    suggestionsList.appendChild(li);
+                });
+                suggestionsList.style.display = cnaes.length > 0 ? 'block' : 'none';
+            });
+    });
+
+    // Fecha a lista de sugestões se clicar fora
+    document.addEventListener('click', function(e) {
+        if (e.target !== input) {
+            suggestionsList.style.display = 'none';
+        }
+    });
+}
+// ... (outras funções) ...
+
+function setupCNAEPrincipalAutocomplete() {
+    const input = document.getElementById('cnae-principal-input');
+    const suggestionsList = document.getElementById('cnae-principal-suggestions');
+    const hiddenIdInput = document.getElementById('cnae-principal-id');
+    let currentFocus = -1;
+
+    input.addEventListener('input', function(e) {
+        const value = this.value;
+        if (!value) {
+            closeSuggestions();
+            return false;
+        }
+
+        // Faz a busca na API com o termo digitado
+        fetch(`/api/empresas/cnaes/?search=${value}`)
+            .then(response => response.json())
+            .then(cnaes => {
+                suggestionsList.innerHTML = '';
+                if (cnaes.length > 0) {
+                    cnaes.forEach(cnae => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>${cnae.codigo}</strong> - ${cnae.denominacao}`;
+                        li.addEventListener('click', function() {
+                            input.value = `${cnae.codigo} - ${cnae.denominacao}`;
+                            hiddenIdInput.value = cnae.id;
+                            closeSuggestions();
+                        });
+                        suggestionsList.appendChild(li);
+                    });
+                    suggestionsList.style.display = 'block';
+                } else {
+                    suggestionsList.style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Erro ao buscar CNAEs:', error));
+    });
+
+    input.addEventListener('keydown', function(e) {
+        let items = suggestionsList.querySelectorAll('li');
+        if (e.keyCode === 40) { // Arrow DOWN
+            currentFocus++;
+            addActiveClass(items);
+        } else if (e.keyCode === 38) { // Arrow UP
+            currentFocus--;
+            addActiveClass(items);
+        } else if (e.keyCode === 13) { // ENTER
+            e.preventDefault();
+            if (currentFocus > -1 && items) {
+                items.item(currentFocus).click();
+            }
+        }
+    });
+
+    function addActiveClass(items) {
+        if (!items) return false;
+        removeActiveClass(items);
+        if (currentFocus >= items.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = (items.length - 1);
+        items.item(currentFocus).classList.add('selected');
+    }
+
+    function removeActiveClass(items) {
+        for (let i = 0; i < items.length; i++) {
+            items.item(i).classList.remove('selected');
+        }
+    }
+
+    function closeSuggestions() {
+        suggestionsList.style.display = 'none';
+        currentFocus = -1;
+    }
+
+    // Fecha as sugestões se o usuário clicar fora
+    document.addEventListener('click', function(e) {
+        if (e.target !== input && e.target !== suggestionsList) {
+            closeSuggestions();
+        }
+    });
+}
+
+// Modifique a chamada no DOMContentLoaded para setup o autocomplete do CNAE Principal
+document.addEventListener("DOMContentLoaded", function() {
+    // ... (outras chamadas) ...
+    populateCNAEForms(); // Podemos remover esta chamada agora para o principal
+    setupCNAEPrincipalAutocomplete(); // Adiciona a nova função de autocomplete
+});
 
 // Função para lidar com o formulário de login, enviando para a API
 function handleLogin() {
@@ -608,4 +801,6 @@ document.addEventListener("DOMContentLoaded", function() {
     handleFaqAccordion();
     // Adicionamos a chamada para a nova função do formulário
     handleMultiStepForm();
+    setupCNAEPrincipalAutocomplete();
+    setupCNAESecundariosAutocomplete(); 
 });

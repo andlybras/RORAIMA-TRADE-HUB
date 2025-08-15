@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     EmpresaListAPIView, EmpresaDetailAPIView, RegisterView,
-    LoginView, MyEmpresaAPIView, ProdutoViewSet
+    LoginView, MyEmpresaAPIView, ProdutoViewSet, CNAEListAPIView
 )
 
 # Cria um roteador e regista o nosso ViewSet de produtos
@@ -11,6 +11,7 @@ router.register(r'produtos', ProdutoViewSet, basename='produto')
 
 # As nossas URLs antigas continuam aqui
 urlpatterns = [
+    path('cnaes/', CNAEListAPIView.as_view(), name='cnae-list-api'),
     path('', EmpresaListAPIView.as_view(), name='empresa-list-api'),
     path('<int:pk>/', EmpresaDetailAPIView.as_view(), name='empresa-detail-api'),
     path('register/', RegisterView.as_view(), name='register-api'),

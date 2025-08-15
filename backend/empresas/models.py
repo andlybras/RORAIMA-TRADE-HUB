@@ -1,6 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class CNAE(models.Model):
+    codigo = models.CharField(max_length=10, unique=True, help_text="Código da subclasse CNAE, ex: 01.11-3/01")
+    denominacao = models.CharField(max_length=255, help_text="Denominação da subclasse CNAE")
+
+    def __str__(self):
+        return f"{self.codigo} - {self.denominacao}"
+
+    class Meta:
+        verbose_name = "CNAE"
+        verbose_name_plural = "CNAEs"
+        ordering = ['codigo']
+        
 class Empresa(models.Model):
     # ---- CAMPOS EXISTENTES ----
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='empresa')
@@ -14,7 +26,8 @@ class Empresa(models.Model):
     logomarca = models.ImageField(upload_to='logomarcas/', blank=True, null=True)
     
     # ---- NOVOS CAMPOS DO FORMULÁRIO ----
-    cnae = models.CharField("CNAE", max_length=20, blank=True)
+    cnae_principal = models.ForeignKey(CNAE, on_delete=models.PROTECT, related_name='empresas_como_principal', verbose_name="CNAE Principal", null=True, blank=True)
+    cnaes_secundarios = models.ManyToManyField(CNAE, blank=True, related_name='empresas_como_secundario', verbose_name="CNAEs Secundários")
     inscricao_estadual = models.CharField(max_length=20, blank=True, null=True)
     endereco_sede = models.CharField("Endereço da Sede", max_length=255, blank=True)
     responsavel_funcao = models.CharField("Função do Responsável", max_length=100, blank=True)
