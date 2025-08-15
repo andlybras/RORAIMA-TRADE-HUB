@@ -1,18 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Empresa, Produto, CNAE
-
-# Serializer para o nosso dicionário de CNAEs
-class CNAESerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CNAE
-        fields = ['id', 'codigo', 'denominacao']
-        
-# Serializer principal para a Empresa
-class EmpresaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Empresa
-        fields = '__all__'
+# 1. Importamos TODOS os modelos necessários em um só lugar
+from .models import Empresa, Produto, CNAE, NCMSeção, NCMCapítulo, NCMPosição, NCMItem
 
 # Serializer para o registo de um novo Utilizador
 class UserSerializer(serializers.ModelSerializer):
@@ -30,15 +19,43 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'password', 'email')
 
-# empresas/serializers.py
+# --- SERIALIZERS PARA NOSSOS DICIONÁRIOS ---
 
-# ... (O resto do seu arquivo, UserSerializer etc., continua igual) ...
+class CNAESerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CNAE
+        fields = ['id', 'codigo', 'denominacao']
 
-# Serializer específico para ATUALIZAR o perfil da empresa
-# empresas/serializers.py
+class NCMSeçãoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NCMSeção
+        fields = ['id', 'codigo', 'descricao']
 
+class NCMCapítuloSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NCMCapítulo
+        fields = ['id', 'codigo', 'descricao']
+
+class NCMPosiçãoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NCMPosição
+        fields = ['id', 'codigo', 'descricao']
+
+class NCMItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NCMItem
+        fields = ['id', 'codigo', 'descricao']
+
+# --- SERIALIZERS PRINCIPAIS DA APLICAÇÃO ---
+
+class ProdutoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Produto
+        fields = '__all__'
+        read_only_fields = ['empresa']
+
+# 2. Unificamos as duas versões do EmpresaProfileSerializer em uma só
 class EmpresaProfileSerializer(serializers.ModelSerializer):
-    # Vamos pedir ao "tradutor" para nos dar o nome completo do CNAE, não apenas o ID
     cnae_principal = serializers.StringRelatedField()
     cnaes_secundarios = serializers.StringRelatedField(many=True)
 
@@ -46,17 +63,14 @@ class EmpresaProfileSerializer(serializers.ModelSerializer):
         model = Empresa
         fields = [
             'razao_social', 'cnpj', 'nome_fantasia', 'descricao', 'logomarca',
-            'cnae_principal', 'cnaes_secundarios', # <-- Adicionamos aqui
+            'cnae_principal', 'cnaes_secundarios',
             'inscricao_estadual', 'endereco_sede', 'responsavel_nome',
             'responsavel_funcao', 'email', 'contatos'
         ]
-        read_only_fields = fields # Tornamos todos os campos de perfil somente leitura por enquanto
+        # A página de perfil é apenas para visualização de dados de registro por enquanto
+        read_only_fields = fields
 
-# ... (Seu ProdutoSerializer continua aqui) ...
-        
-class ProdutoSerializer(serializers.ModelSerializer):
+class EmpresaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Produto
-        # Vamos traduzir todos os campos do nosso modelo Produto
+        model = Empresa
         fields = '__all__'
-        read_only_fields = ['empresa']
