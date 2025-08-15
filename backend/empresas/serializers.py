@@ -24,21 +24,45 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'password', 'email')
 
+# empresas/serializers.py
+
+# ... (O resto do seu arquivo, UserSerializer etc., continua igual) ...
+
 # Serializer específico para ATUALIZAR o perfil da empresa
 class EmpresaProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Empresa
-        # Agora incluímos todos os campos que queremos mostrar...
+        # Agora incluímos TODOS os campos que queremos mostrar na página
         fields = [
             'razao_social', 
             'cnpj', 
             'nome_fantasia', 
-            'descricao', 
+            'descricao',
+            'logomarca',
+            # --- CAMPOS ADICIONADOS ---
+            'cnae',
+            'inscricao_estadual',
+            'endereco_sede',
+            'responsavel_nome',
+            'responsavel_funcao',
+            'email',
             'contatos',
-            'logomarca'
         ]
-        # ...e dizemos ao tradutor que a razão social e o cnpj são apenas para leitura.
-        read_only_fields = ['razao_social', 'cnpj']
+        # E aqui, listamos TODOS os campos que NÃO SÃO editáveis pelo usuário.
+        # Deixamos de fora apenas 'nome_fantasia', 'descricao' e 'logomarca'.
+        read_only_fields = [
+            'razao_social', 
+            'cnpj',
+            'cnae',
+            'inscricao_estadual',
+            'endereco_sede',
+            'responsavel_nome',
+            'responsavel_funcao',
+            'email',
+            'contatos',
+        ]
+
+# ... (Seu ProdutoSerializer continua aqui) ...
         
 class ProdutoSerializer(serializers.ModelSerializer):
     class Meta:

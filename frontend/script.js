@@ -251,7 +251,11 @@ function handleAuthentication() {
     }
 }
 
-// Função para popular e ATUALIZAR o formulário de perfil
+// frontend/script.js
+
+// ... (todo o resto do seu JS continua igual) ...
+
+// Função para popular e ATUALIZAR o formulário de perfil (VERSÃO ATUALIZADA)
 function populateProfileForm() {
     const form = document.getElementById("perfil-form");
     if (!form) return;
@@ -259,19 +263,33 @@ function populateProfileForm() {
     const token = localStorage.getItem('authToken');
     if (!token) return;
 
+    // --- PARTE 1: BUSCAR E PREENCHER OS DADOS (ATUALIZADA) ---
+    // Esta parte agora vai preencher TODOS os campos do formulário.
     fetch('/api/empresas/my-empresa/', {
         method: 'GET',
         headers: { 'Authorization': `Token ${token}` }
     })
     .then(response => response.ok ? response.json() : Promise.reject('Falha ao carregar dados'))
     .then(data => {
+        // Campos editáveis
         form.querySelector('[name="nome_fantasia"]').value = data.nome_fantasia || '';
         form.querySelector('[name="descricao"]').value = data.descricao || '';
+        
+        // Campos apenas para visualização
         form.querySelector('[name="razao_social"]').value = data.razao_social || '';
         form.querySelector('[name="cnpj"]').value = data.cnpj || '';
+        form.querySelector('[name="cnae"]').value = data.cnae || '';
+        form.querySelector('[name="inscricao_estadual"]').value = data.inscricao_estadual || '';
+        form.querySelector('[name="endereco_sede"]').value = data.endereco_sede || '';
+        form.querySelector('[name="responsavel_nome"]').value = data.responsavel_nome || '';
+        form.querySelector('[name="responsavel_funcao"]').value = data.responsavel_funcao || '';
+        form.querySelector('[name="email"]').value = data.email || '';
+        form.querySelector('[name="contatos"]').value = data.contatos || '';
     })
     .catch(error => console.error("Aviso ao popular perfil:", error));
 
+    // --- PARTE 2: ENVIAR AS ATUALIZAÇÕES (SEM NENHUMA ALTERAÇÃO) ---
+    // Esta lógica de envio permanece INTACTA para não afetar o upload do logotipo.
     form.addEventListener('submit', function(event) {
         event.preventDefault();
 
@@ -288,19 +306,24 @@ function populateProfileForm() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Falha ao atualizar o perfil.');
+                // Tenta ler a mensagem de erro do backend para dar um feedback melhor
+                return response.json().then(err => { throw new Error(err.detail || 'Falha ao atualizar o perfil.') });
             }
             return response.json();
         })
         .then(updatedData => {
             alert('Perfil atualizado com sucesso!');
+            // Opcional: recarregar a página para ver a logomarca atualizada, se houver
+            window.location.reload(); 
         })
         .catch(error => {
             console.error('Erro:', error);
-            alert('Ocorreu um erro ao atualizar o perfil.');
+            alert(`Ocorreu um erro ao atualizar o perfil: ${error.message}`);
         });
     });
 }
+
+// ... (todo o resto do seu JS continua igual) ...
 
 // Função para popular os filtros de busca
 function populateFilters() {

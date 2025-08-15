@@ -1032,3 +1032,16 @@ footer {
     line-height: 1.7;
     color: #555;
 }
+
+/* frontend/style.css */
+
+.readonly-field {
+    background-color: #e9ecef; /* Um cinza claro */
+    cursor: not-allowed; /* Mostra um cursor de "proibido" */
+}
+
+.form-divider {
+    margin: 30px 0;
+    border: 0;
+    border-top: 1px solid #ddd;
+}
