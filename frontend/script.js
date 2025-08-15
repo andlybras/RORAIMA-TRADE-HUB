@@ -69,20 +69,28 @@ function renderCompanyDetails() {
         });
 }
 
-// Função para lidar com o formulário de registo, enviando para a API
+
+// ---- FUNÇÃO DE REGISTRO TOTALMENTE SUBSTITUÍDA ----
+// Esta nova versão controla o envio do formulário e a exibição do modal de sucesso.
 function handleRegistration() {
     const form = document.getElementById("registration-form");
-    if (!form) {
-        // ---- OUTRA LINHA DE DEBUG ADICIONADA ----
-        return;
-    }
+    if (!form) return;
+
+    const successModal = document.getElementById("success-modal");
+    const modalOkBtn = document.getElementById("modal-ok-btn");
 
     form.addEventListener("submit", function(event) {
         event.preventDefault();
+        
+        if (!form.querySelector('#termos').checked) {
+            alert('Você deve concordar com a declaração para se registrar.');
+            return;
+        }
+
         const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
-        data.username = data.email;
+        data.username = data.email; // Django User precisa de um username
 
         fetch('/api/empresas/register/', {
             method: 'POST',
@@ -94,17 +102,83 @@ function handleRegistration() {
         })
         .then(response => {
             if (response.ok) return response.json();
-            throw new Error('Falha no registo.');
+            return response.json().then(errData => {
+                 const firstErrorKey = Object.keys(errData)[0];
+                 const errorMessages = errData[firstErrorKey].join(', ');
+                 throw new Error(`Falha no registro: ${firstErrorKey} - ${errorMessages}`);
+            });
         })
         .then(data => {
-            alert("Registo realizado com sucesso! Pode agora fazer o login.");
-            window.location.href = "/login/";
+            // Em vez de um alerta, mostramos nosso modal customizado
+            successModal.style.display = 'flex'; 
         })
         .catch(error => {
-            alert("Ocorreu um erro no registo. Verifique os dados e tente novamente.");
+            console.error("Erro no Registro:", error);
+            alert(error.message || "Ocorreu um erro. Verifique se o e-mail ou CNPJ já não estão cadastrados.");
         });
     });
+
+    // Adiciona o evento para o botão OK do modal
+    modalOkBtn.addEventListener("click", () => {
+        window.location.href = "/login/"; // Redireciona para a página de login
+    });
 }
+
+
+// ---- NOVA FUNÇÃO PARA CONTROLAR O FORMULÁRIO MULTI-STEP ----
+// Esta função é nova e controla a navegação entre os passos do formulário de registro.
+function handleMultiStepForm() {
+    const form = document.getElementById("registration-form");
+    if (!form) return;
+
+    const nextBtn = document.getElementById("next-btn");
+    const prevBtn = document.getElementById("prev-btn");
+    const submitBtn = document.getElementById("submit-btn");
+    const steps = Array.from(document.querySelectorAll(".form-step"));
+    let currentStep = 0;
+
+    function updateButtons() {
+        prevBtn.style.display = currentStep > 0 ? "inline-block" : "none";
+        nextBtn.style.display = currentStep < steps.length - 1 ? "inline-block" : "none";
+        submitBtn.style.display = currentStep === steps.length - 1 ? "inline-block" : "none";
+    }
+
+    function showStep(stepIndex) {
+        steps.forEach((step, index) => {
+            step.classList.toggle("active-step", index === stepIndex);
+        });
+        currentStep = stepIndex;
+        updateButtons();
+    }
+
+    nextBtn.addEventListener("click", () => {
+        const currentStepInputs = steps[currentStep].querySelectorAll('input[required]');
+        let allValid = true;
+        currentStepInputs.forEach(input => {
+            if (!input.value) {
+                allValid = false;
+                input.style.borderColor = 'red';
+            } else {
+                input.style.borderColor = '#ccc';
+            }
+        });
+
+        if (allValid && currentStep < steps.length - 1) {
+            showStep(currentStep + 1);
+        } else if (!allValid) {
+            alert('Por favor, preencha todos os campos obrigatórios.');
+        }
+    });
+
+    prevBtn.addEventListener("click", () => {
+        if (currentStep > 0) {
+            showStep(currentStep - 1);
+        }
+    });
+
+    showStep(0); // Mostra o primeiro passo inicialmente
+}
+
 
 // Função para lidar com o formulário de login, enviando para a API
 function handleLogin() {
@@ -178,7 +252,6 @@ function handleAuthentication() {
 }
 
 // Função para popular e ATUALIZAR o formulário de perfil
-// Função para popular E ATUALIZAR o formulário de perfil
 function populateProfileForm() {
     const form = document.getElementById("perfil-form");
     if (!form) return;
@@ -186,7 +259,6 @@ function populateProfileForm() {
     const token = localStorage.getItem('authToken');
     if (!token) return;
 
-    // PARTE 1: BUSCAR E PREENCHER OS DADOS (continua igual)
     fetch('/api/empresas/my-empresa/', {
         method: 'GET',
         headers: { 'Authorization': `Token ${token}` }
@@ -200,23 +272,19 @@ function populateProfileForm() {
     })
     .catch(error => console.error("Aviso ao popular perfil:", error));
 
-    // PARTE 2: ENVIAR AS ATUALIZAÇÕES (A VERSÃO CORRIGIDA)
     form.addEventListener('submit', function(event) {
         event.preventDefault();
 
         const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
-        // Usaremos este objeto FormData diretamente, sem o converter
         const formData = new FormData(form); 
 
         fetch('/api/empresas/my-empresa/', {
             method: 'PATCH',
             headers: {
-                // NÃO definimos o 'Content-Type'. O navegador fará isso por nós
-                // quando enviamos FormData, incluindo o 'boundary' correto.
                 'Authorization': `Token ${token}`,
                 'X-CSRFToken': csrfToken
             },
-            body: formData // Enviamos o objeto FormData DIRETAMENTE
+            body: formData 
         })
         .then(response => {
             if (!response.ok) {
@@ -226,7 +294,6 @@ function populateProfileForm() {
         })
         .then(updatedData => {
             alert('Perfil atualizado com sucesso!');
-            // Não recarregamos a página para uma melhor experiência
         })
         .catch(error => {
             console.error('Erro:', error);
@@ -290,8 +357,6 @@ function renderCursosList() {
         });
 }
 
-// Função para buscar e renderizar a lista de produtos na página "Minha Vitrine"
-// Função para buscar e renderizar a lista de produtos na página "Minha Vitrine"
 // Função para buscar e renderizar a lista de produtos
 function renderMyProducts() {
     const productListContainer = document.querySelector(".product-list");
@@ -326,7 +391,6 @@ function renderMyProducts() {
 }
 
 // Função para lidar com a adição de um novo produto
-// Função para lidar com a adição de um novo produto
 function handleAddProduct() {
     const form = document.getElementById("add-product-form");
     if (!form) return;
@@ -349,19 +413,17 @@ function handleAddProduct() {
         })
         .then(response => {
             if (!response.ok) {
-                // Se a resposta não for ok, lê o erro do corpo da resposta
                 return response.json().then(err => { throw err; });
             }
             return response.json();
         })
         .then(newProduct => {
             alert('Produto adicionado com sucesso!');
-            form.reset(); // Limpa o formulário
-            renderMyProducts(); // Atualiza a lista de produtos na tela
+            form.reset(); 
+            renderMyProducts(); 
         })
         .catch(error => {
             console.error('Erro:', error);
-            // Exibe uma mensagem de erro mais detalhada, se disponível
             const errorMessage = error.detail || 'Ocorreu um erro ao adicionar o produto.';
             alert(errorMessage);
         });
@@ -377,14 +439,12 @@ function handleProductActions() {
 
     if (!productList || !modal) return;
 
-    // Ouvinte para os cliques na lista de produtos
     productList.addEventListener('click', function(event) {
         const target = event.target;
         const token = localStorage.getItem('authToken');
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         const id = target.dataset.id;
 
-        // --- LÓGICA DE EXCLUSÃO ---
         if (target.classList.contains('delete-btn')) {
             if (confirm(`Tem a certeza de que deseja excluir este produto?`)) {
                 fetch(`/api/empresas/produtos/${id}/`, {
@@ -397,13 +457,12 @@ function handleProductActions() {
                 .then(response => {
                     if (!response.ok) throw new Error('Falha ao excluir o produto.');
                     alert('Produto excluído com sucesso!');
-                    renderMyProducts(); // Atualiza a lista
+                    renderMyProducts();
                 })
                 .catch(error => alert('Ocorreu um erro ao excluir o produto.'));
             }
         }
 
-        // --- LÓGICA DE EDIÇÃO (PARTE 1: ABRIR E PREENCHER O MODAL) ---
         if (target.classList.contains('edit-btn')) {
             fetch(`/api/empresas/produtos/${id}/`, {
                 headers: { 'Authorization': `Token ${token}` }
@@ -414,12 +473,11 @@ function handleProductActions() {
                 editForm.querySelector('#edit-produto-nome').value = data.nome;
                 editForm.querySelector('#edit-produto-ncm').value = data.ncm_hs;
                 editForm.querySelector('#edit-produto-certificacoes').value = data.certificacoes;
-                modal.style.display = 'flex'; // Mostra o modal
+                modal.style.display = 'flex';
             });
         }
     });
 
-    // --- LÓGICA DE EDIÇÃO (PARTE 2: SALVAR AS ALTERAÇÕES) ---
     editForm.addEventListener('submit', function(event) {
         event.preventDefault();
         const token = localStorage.getItem('authToken');
@@ -440,13 +498,12 @@ function handleProductActions() {
         .then(response => response.ok ? response.json() : Promise.reject('Falha ao atualizar'))
         .then(updatedData => {
             alert('Produto atualizado com sucesso!');
-            modal.style.display = 'none'; // Esconde o modal
-            renderMyProducts(); // Atualiza a lista
+            modal.style.display = 'none';
+            renderMyProducts();
         })
         .catch(error => alert('Ocorreu um erro ao atualizar o produto.'));
     });
 
-    // Lógica para fechar o modal
     closeModalBtn.onclick = () => modal.style.display = 'none';
     window.onclick = (event) => {
         if (event.target == modal) {
@@ -475,7 +532,6 @@ function populateDashboardHeader() {
         if (data.logomarca) {
             logoImgElement.src = data.logomarca;
         } else {
-            // Poderíamos definir uma imagem padrão aqui
             logoImgElement.src = "https://placehold.co/150x150?text=Logo";
         }
         companyNameElement.textContent = data.nome_fantasia;
@@ -489,7 +545,7 @@ function populateDashboardHeader() {
 function handleFaqAccordion() {
     const faqItems = document.querySelectorAll(".faq-item");
 
-    if (!faqItems.length) return; // Se não houver itens de FAQ na página, não faz nada
+    if (!faqItems.length) return;
 
     faqItems.forEach(item => {
         const questionButton = item.querySelector(".faq-question");
@@ -498,13 +554,6 @@ function handleFaqAccordion() {
 
         questionButton.addEventListener("click", () => {
             const isActive = item.classList.contains("active");
-
-            // Opcional: Fechar todos os outros antes de abrir o novo
-            // faqItems.forEach(i => {
-            //     i.classList.remove("active");
-            //     i.querySelector(".faq-answer").style.maxHeight = null;
-            //     i.querySelector(".faq-icon").textContent = "+";
-            // });
 
             if (!isActive) {
                 item.classList.add("active");
@@ -530,8 +579,10 @@ document.addEventListener("DOMContentLoaded", function() {
     handleSearchForm();
     populateProfileForm();
     populateDashboardHeader();
-    renderMyProducts(); // <-- ADICIONE ESTA LINHA
+    renderMyProducts();
     handleAddProduct();
     handleProductActions();
     handleFaqAccordion();
+    // Adicionamos a chamada para a nova função do formulário
+    handleMultiStepForm();
 });

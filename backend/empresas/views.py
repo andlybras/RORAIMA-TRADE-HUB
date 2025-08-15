@@ -32,9 +32,15 @@ class RegisterView(APIView):
                 razao_social=request.data.get('razao_social'),
                 nome_fantasia=request.data.get('nome_fantasia'),
                 cnpj=request.data.get('cnpj'),
+                # ---- LINHAS ADICIONADAS ----
+                cnae=request.data.get('cnae'),
+                inscricao_estadual=request.data.get('inscricao_estadual'),
+                endereco_sede=request.data.get('endereco_sede'),
                 responsavel_nome=request.data.get('responsavel_nome'),
+                responsavel_funcao=request.data.get('responsavel_funcao'),
+                # ---- FIM DAS LINHAS ADICIONADAS ----
                 email=user.email,
-                contatos=request.data.get('contatos')
+                contatos=request.data.get('contatos'),
             )
             return Response(user_serializer.data, status=status.HTTP_201_CREATED)
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

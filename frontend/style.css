@@ -105,6 +105,8 @@ main .container {
   font-weight: bold;
   border-radius: 5px; /* Bordas arredondadas */
   text-align: center;
+  border: none; /* Adicionado para consistência */
+  cursor: pointer; /* Adicionado para consistência */
 }
 
 .cta-button.secondary {
@@ -432,16 +434,26 @@ footer {
 /* --- Estilos de Formulários --- */
 .form-container {
   max-width: 700px;
-  margin: 0 auto; /* Centraliza o container do formulário */
+  margin: 40px auto; /* Centraliza o container do formulário e dá espaço no topo/baixo*/
   padding: 30px;
   background-color: #f9f9f9;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
 }
 
+/* Adicionamos um H1 para o título principal da página de registro */
+.form-container h1 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
 .form-container h2 {
   margin-top: 0;
   text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
 }
 
 .form-container p {
@@ -466,7 +478,7 @@ footer {
 .form-group textarea,
 .form-group select {
   width: 100%;
-  padding: 8px; /* Reduzimos o padding vertical de 12px para 8px */
+  padding: 10px; /* Aumentamos um pouco o padding */
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
@@ -482,10 +494,8 @@ footer {
     color: #dc3545;
     font-size: 12px;
     margin-top: 5px;
-    /* Por padrão, ele fica invisível até o JS adicionar uma mensagem */
 }
 
-/* Adicione esta nova regra para o campo de arquivo */
 .form-group input[type="file"] {
   padding: 10px;
   border: 1px solid #ccc;
@@ -506,6 +516,36 @@ footer {
 .form-group-checkbox label {
   font-weight: normal;
 }
+
+/* --- NOVOS ESTILOS PARA O FORMULÁRIO DE REGISTRO MULTI-STEP --- */
+.form-step {
+    display: none; /* Esconde todos os passos por padrão */
+}
+
+.form-step.active-step {
+    display: block; /* Mostra apenas o passo ativo */
+}
+
+.form-navigation {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.declaration-text {
+    font-size: 14px;
+    font-style: italic;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    background-color: #f1f1f1;
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid #007bff;
+}
+/* --- FIM DOS NOVOS ESTILOS --- */
+
 
 /* --- Estilos da Página Intermediária "Quero Vender" --- */
 .welcome-column {

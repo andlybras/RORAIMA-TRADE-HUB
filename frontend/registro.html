@@ -4,66 +4,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roraima Trade Hub</title>
+    <title>Registro - Roraima Trade Hub</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body class="auth-page">
     <header class="header">
     {% include 'header.html' %}
-</header>
+    </header>
 
     <main>
     <div class="container">
         <div class="form-container">
-            <h2>Crie sua Conta de Vendedor</h2>
-            <p>Preencha os dados abaixo para começar a expor seus produtos para o mundo.</p>
+            <h1>Registro de Empresa</h1>
+
             <form id="registration-form">
                 {% csrf_token %}
-                <div class="form-group">
-                    <label for="razao-social">Razão Social</label>
-                    <input type="text" id="razao-social" name="razao_social" required>
+
+                <div class="form-step active-step" id="step-1">
+                    <h2>Dados Empresariais</h2>
+                    <div class="form-group">
+                        <label for="razao-social">Razão Social</label>
+                        <input type="text" id="razao-social" name="razao_social" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nome-fantasia">Nome Fantasia</label>
+                        <input type="text" id="nome-fantasia" name="nome_fantasia" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cnpj">CNPJ</label>
+                        <input type="text" id="cnpj" name="cnpj" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cnae">CNAE</label>
+                        <input type="text" id="cnae" name="cnae" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="inscricao-estadual">Inscrição Estadual (se aplicável)</label>
+                        <input type="text" id="inscricao-estadual" name="inscricao_estadual">
+                    </div>
+                    <div class="form-group">
+                        <label for="endereco">Endereço da Sede Administrativa</label>
+                        <input type="text" id="endereco" name="endereco_sede" required>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="nome-fantasia">Nome Fantasia</label>
-                    <input type="text" id="nome-fantasia" name="nome_fantasia" required>
+
+                <div class="form-step" id="step-2">
+                    <h2>Dados do Responsável</h2>
+                    <div class="form-group">
+                        <label for="responsavel">Nome Completo</label>
+                        <input type="text" id="responsavel" name="responsavel_nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="funcao">Função/Cargo</label>
+                        <input type="text" id="funcao" name="responsavel_funcao" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">E-mail (será seu login)</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contato">Contato Telefônico (com DDD)</label>
+                        <input type="text" id="contato" name="contatos" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="senha">Senha</label>
+                        <input type="password" id="senha" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirma-senha">Confirmação de Senha</label>
+                        <input type="password" id="confirma-senha" name="confirma_senha" required>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="cnpj">CNPJ</label>
-                    <input type="text" id="cnpj" name="cnpj" required>
+
+                <div class="form-step" id="step-3">
+                    <p class="declaration-text">Declaro, sob as penas da lei, que os dados informados neste formulário são verdadeiros e completos, e que li e aceito integralmente os <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a>. Declaro, ainda, que sou o responsável legal pela empresa ou que possuo autorização formal para representá-la neste ato.</p>
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="termos" name="termos" required>
+                        <label for="termos">Li e concordo com a declaração acima.</label>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="responsavel">Nome do Responsável</label>
-                    <input type="text" id="responsavel" name="responsavel_nome" required>
+
+                <div class="form-navigation">
+                    <button type="button" id="prev-btn" class="cta-button secondary" style="display: none;">Anterior</button>
+                    <button type="button" id="next-btn" class="cta-button">Próximo</button>
+                    <button type="submit" id="submit-btn" class="cta-button" style="display: none;">Submeter Registro</button>
                 </div>
-                <div class="form-group">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="contato">Contatos (Telefone/WhatsApp)</label>
-                    <input type="text" id="contato" name="contatos" required>
-                </div>
-                <div class="form-group">
-                    <label for="senha">Senha</label>
-                    <input type="password" id="senha" name="password" required>
-                </div>
-                <div class="form-group">
-                    <label for="confirma-senha">Confirmação de Senha</label>
-                    <input type="password" id="confirma-senha" name="confirma_senha" required>
-                </div>
-                <div class="form-group-checkbox">
-                    <input type="checkbox" id="termos" name="termos" required>
-                    <label for="termos">Eu li e aceito os <a href="#">termos de uso e a política de privacidade</a>.</label>
-                </div>
-                <button type="submit" class="cta-button">Registar</button>
             </form>
         </div>
     </div>
-</main>
+    </main>
+
+    <div class="modal-overlay" id="success-modal" style="display: none;">
+        <div class="modal-content">
+            <p>Registro submetido com sucesso. As informações serão analisadas por nossa equipe e, se necessário, entraremos em contato para complementações ou esclarecimentos. Até a conclusão da análise, o perfil permanecerá inativo e não estará disponível para visualização pública. No entanto, você poderá acessar normalmente o painel interno para acompanhar o andamento e atualizar informações.</p>
+            <button id="modal-ok-btn" class="cta-button">OK</button>
+        </div>
+    </div>
+
 
     <footer>
     {% include 'footer.html' %}
-</footer>
+    </footer>
 
     <script src="{% static 'script.js' %}"></script>
 </body>

@@ -2,19 +2,33 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Empresa(models.Model):
-    # Campos baseados no nosso formulário de registro e perfil
+    # ---- CAMPOS EXISTENTES ----
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='empresa')
     razao_social = models.CharField(max_length=255)
     nome_fantasia = models.CharField(max_length=255)
     cnpj = models.CharField(max_length=18, unique=True)
-    inscricao_estadual = models.CharField(max_length=20, blank=True, null=True)
     responsavel_nome = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
-    contatos = models.CharField(max_length=100)
+    contatos = models.CharField(max_length=100) # Este campo guardará o "Contato Telefônico"
     descricao = models.TextField(blank=True, null=True)
     logomarca = models.ImageField(upload_to='logomarcas/', blank=True, null=True)
+    
+    # ---- NOVOS CAMPOS DO FORMULÁRIO ----
+    cnae = models.CharField("CNAE", max_length=20, blank=True)
+    inscricao_estadual = models.CharField(max_length=20, blank=True, null=True)
+    endereco_sede = models.CharField("Endereço da Sede", max_length=255, blank=True)
+    responsavel_funcao = models.CharField("Função do Responsável", max_length=100, blank=True)
 
-    # Campos gerenciados automaticamente pelo Django
+    # ---- NOVOS CAMPOS DE CONTROLE (MUITO IMPORTANTE!) ----
+    STATUS_CHOICES = [
+        ('PENDENTE', 'Pendente'),
+        ('ATIVO', 'Ativo'),
+        ('INDEFERIDO', 'Indeferido'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDENTE')
+    justificativa_indeferimento = models.TextField(blank=True, null=True)
+
+    # ---- CAMPOS DE DATA (JÁ EXISTIAM) ----
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
