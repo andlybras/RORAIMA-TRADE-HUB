@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roraima Trade Hub</title>
+    <title>Minha Vitrine - Roraima Trade Hub</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
-<body class="dashboard-page">
+<body class="dashboard-page page-vitrine">
     <header class="header">
     {% include 'header.html' %}
 </header>
@@ -29,72 +29,69 @@
         </aside>
 
         <section class="dashboard-content">
-    <h1>Minha Vitrine</h1>
-    <p>Gerencie os produtos e serviços que serão exibidos em sua vitrine pública.</p>
+            <h1>Minha Vitrine</h1>
+            <p>Gerencie os produtos e serviços que sua empresa oferece.</p>
 
-    <div class="content-section">
-        <h3>Produtos Cadastrados</h3>
-        <div class="product-list"></div>
-    </div>
+            <div class="content-section">
+                <h2>Adicionar Novo Produto</h2>
+                <div class="form-container">
+                    <form id="add-product-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="produto-nome">Nome do Produto</label>
+                            <input type="text" id="produto-nome" name="nome" required>
+                        </div>
+                        <hr class="form-divider">
+                        <h4>Classificação NCM</h4>
+                        <p style="font-size: 14px; color: #6c757d; margin-top: -10px; margin-bottom: 20px;">
+                            Selecione a classificação fiscal do seu produto passo a passo.
+                        </p>
+                        <div class="form-group">
+                            <label for="ncm-secao">1. Setor (Seção NCM)</label>
+                            <select id="ncm-secao" required>
+                                <option value="" selected disabled>Selecione um setor</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ncm-capitulo">2. Área (Capítulo NCM)</label>
+                            <select id="ncm-capitulo" required disabled>
+                                <option value="" selected disabled>Selecione uma área</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ncm-posicao">3. Categoria (Posição NCM)</label>
+                            <select id="ncm-posicao" required disabled>
+                                <option value="" selected disabled>Selecione uma categoria</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ncm-item">4. Produto (Item NCM - 8 dígitos)</label>
+                            <select id="ncm-item" name="ncm" required disabled>
+                                <option value="" selected disabled>Selecione o produto final</option>
+                            </select>
+                        </div>
+                        <hr class="form-divider">
+                        <div class="form-group">
+                            <label for="produto-certificacoes">Certificações (opcional)</label>
+                            <textarea id="produto-certificacoes" name="certificacoes" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="cta-button">Adicionar Produto</button>
+                    </form>
+                </div>
+            </div>
 
-    <div class="content-section">
-        <h3>Adicionar Novo Produto</h3>
-        <div class="form-container">
-            <form id="add-product-form">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="produto-nome">Nome do Produto/Serviço</label>
-                    <input type="text" id="produto-nome" name="nome" required>
-                </div>
-                <div class="form-group">
-                    <label for="produto-fotos">Fotos</label>
-                    <input type="file" id="produto-fotos" name="produto-fotos" multiple>
-                </div>
-                <div class="form-group">
-                    <label for="produto-ncm">NCM/HS</label>
-                    <input type="text" id="produto-ncm" name="produto-ncm">
-                </div>
-                <div class="form-group">
-                    <label for="produto-certificacoes">Certificações</label>
-                    <input type="text" id="produto-certificacoes" name="produto-certificacoes">
-                </div>
-                <button type="submit" class="cta-button">Adicionar Produto</button>
-            </form>
+            <div class="content-section">
+                <h2>Meus Produtos Cadastrados</h2>
+                <div class="product-list">
+                    </div>
+            </div>
+
+        </section>
         </div>
-    </div>
-</section>
-    </div>
     </main>
 
     <footer>
     {% include 'footer.html' %}
-
-<div id="edit-product-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2>Editar Produto</h2>
-            <div class="form-container">
-                <form id="edit-product-form">
-                    {% csrf_token %}
-                    <input type="hidden" id="edit-product-id" name="id">
-                    <div class="form-group">
-                        <label for="edit-produto-nome">Nome do Produto/Serviço</label>
-                        <input type="text" id="edit-produto-nome" name="nome" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-produto-ncm">NCM/HS</label>
-                        <input type="text" id="edit-produto-ncm" name="ncm_hs">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-produto-certificacoes">Certificações</label>
-                        <input type="text" id="edit-produto-certificacoes" name="certificacoes">
-                    </div>
-                    <button type="submit" class="cta-button">Salvar Alterações</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
 </footer>
 
     <script src="{% static 'script.js' %}"></script>

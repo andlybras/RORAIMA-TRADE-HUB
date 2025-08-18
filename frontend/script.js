@@ -622,15 +622,92 @@ function renderMyProducts() {
     });
 }
 
-// Função para lidar com a adição de um novo produto
+// ... (outras funções) ...
+
+function setupNCMCascadingDropdowns() {
+    const secaoSelect = document.getElementById('ncm-secao');
+    const capituloSelect = document.getElementById('ncm-capitulo');
+    const posicaoSelect = document.getElementById('ncm-posicao');
+    const itemSelect = document.getElementById('ncm-item');
+
+    // Se não estamos na página certa, não faz nada
+    if (!secaoSelect) return;
+
+    // Função genérica para limpar e preencher um <select>
+    function populateSelect(selectElement, items, defaultOptionText) {
+        selectElement.innerHTML = `<option value="" selected disabled>${defaultOptionText}</option>`;
+        items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            // Usa 'descricao' para Seção e 'codigo' + 'descricao' para os outros
+            option.textContent = item.codigo ? `${item.codigo} - ${item.descricao}` : item.descricao;
+            selectElement.appendChild(option);
+        });
+        selectElement.disabled = false;
+    }
+
+    // Função para limpar os selects "filhos"
+    function resetSelects(...selects) {
+        selects.forEach(select => {
+            select.innerHTML = `<option value="" selected disabled>Selecione uma opção no campo anterior</option>`;
+            select.disabled = true;
+        });
+    }
+
+    // 1. Carregar Seções quando a página carregar
+    fetch('/api/empresas/ncm/secoes/')
+        .then(response => response.json())
+        .then(data => populateSelect(secaoSelect, data, 'Selecione um setor'));
+
+    // 2. Quando uma Seção for escolhida, carregar os Capítulos
+    secaoSelect.addEventListener('change', () => {
+        const secaoId = secaoSelect.value;
+        resetSelects(capituloSelect, posicaoSelect, itemSelect);
+        if (!secaoId) return;
+
+        fetch(`/api/empresas/ncm/capitulos/?secao_id=${secaoId}`)
+            .then(response => response.json())
+            .then(data => populateSelect(capituloSelect, data, 'Selecione uma área'));
+    });
+
+    // 3. Quando um Capítulo for escolhido, carregar as Posições
+    capituloSelect.addEventListener('change', () => {
+        const capituloId = capituloSelect.value;
+        resetSelects(posicaoSelect, itemSelect);
+        if (!capituloId) return;
+
+        fetch(`/api/empresas/ncm/posicoes/?capitulo_id=${capituloId}`)
+            .then(response => response.json())
+            .then(data => populateSelect(posicaoSelect, data, 'Selecione uma categoria'));
+    });
+
+    // 4. Quando uma Posição for escolhida, carregar os Itens finais
+    posicaoSelect.addEventListener('change', () => {
+        const posicaoId = posicaoSelect.value;
+        resetSelects(itemSelect);
+        if (!posicaoId) return;
+
+        fetch(`/api/empresas/ncm/itens/?posicao_id=${posicaoId}`)
+            .then(response => response.json())
+            .then(data => populateSelect(itemSelect, data, 'Selecione o produto final'));
+    });
+}
+
+// ... (outras funções, como setupNCMCascadingDropdowns) ...
+
+// --- FUNÇÃO handleAddProduct ATUALIZADA ---
 function handleAddProduct() {
     const form = document.getElementById("add-product-form");
     if (!form) return;
 
     form.addEventListener('submit', function(event) {
-        event.preventDefault();
+        event.preventDefault(); // Impede o recarregamento da página
+
         const token = localStorage.getItem('authToken');
         const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // new FormData(form) já pega todos os campos com o atributo 'name',
+        // incluindo o <select name="ncm"> com o ID do item NCM selecionado.
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
@@ -645,22 +722,37 @@ function handleAddProduct() {
         })
         .then(response => {
             if (!response.ok) {
+                // Se a resposta não for ok, lê o erro do corpo da resposta para dar um feedback melhor
                 return response.json().then(err => { throw err; });
             }
             return response.json();
         })
         .then(newProduct => {
-            alert('Produto adicionado com sucesso!');
-            form.reset(); 
-            renderMyProducts(); 
+            alert(`Produto "${newProduct.nome}" adicionado com sucesso!`);
+            form.reset(); // Limpa o formulário
+
+            // Reseta os menus em cascata para o estado inicial
+            document.getElementById('ncm-capitulo').disabled = true;
+            document.getElementById('ncm-posicao').disabled = true;
+            document.getElementById('ncm-item').disabled = true;
+
+            renderMyProducts(); // Atualiza a lista de produtos na tela sem precisar recarregar a página
         })
         .catch(error => {
-            console.error('Erro:', error);
-            const errorMessage = error.detail || 'Ocorreu um erro ao adicionar o produto.';
+            console.error('Erro ao adicionar produto:', error);
+            // Monta uma mensagem de erro mais útil
+            let errorMessage = 'Ocorreu um erro ao adicionar o produto.';
+            if (error.ncm) {
+                errorMessage = `Erro no campo NCM: ${error.ncm[0]}`;
+            } else if (error.nome) {
+                errorMessage = `Erro no campo Nome: ${error.nome[0]}`;
+            }
             alert(errorMessage);
         });
     });
 }
+
+// ... (o resto do seu arquivo script.js) ...
 
 // Função para lidar com a Edição e Exclusão de produtos
 function handleProductActions() {
@@ -800,23 +892,40 @@ function handleFaqAccordion() {
     });
 }
 
-// Evento principal que "orquestra" tudo
+// NO FINAL DO SEU ARQUIVO script.js
+// SUBSTITUA O SEU DOMContentLoaded POR ESTE BLOCO COMPLETO
+
 document.addEventListener("DOMContentLoaded", function() {
+    // --- FUNÇÕES GERAIS (rodam em várias páginas) ---
     handleAuthentication();
-    renderCompanyCards();
-    renderCompanyDetails();
-    handleRegistration();
-    handleLogin();
-    populateFilters();
-    handleSearchForm();
-    populateProfileForm();
-    populateDashboardHeader();
-    renderMyProducts();
-    handleAddProduct();
-    handleProductActions();
-    handleFaqAccordion();
-    // Adicionamos a chamada para a nova função do formulário
-    handleMultiStepForm();
-    setupCNAEPrincipalAutocomplete();
-    setupCNAESecundariosAutocomplete(); 
+    populateDashboardHeader(); // Para preencher o header do menu lateral
+
+    // --- FUNÇÕES ESPECÍFICAS DA PÁGINA DE REGISTRO ---
+    if (document.getElementById('registration-form')) {
+        handleRegistration();
+        handleMultiStepForm();
+        setupCNAEPrincipalAutocomplete();
+        setupCNAESecundariosAutocomplete();
+    }
+
+    // --- FUNÇÕES ESPECÍFICAS DA PÁGINA DE LOGIN ---
+    if (document.getElementById('login-form')) {
+        handleLogin();
+    }
+
+    // --- FUNÇÕES ESPECÍFICAS DA PÁGINA "MINHA VITRINE" ---
+    if (document.body.classList.contains('page-vitrine')) { // Adicionaremos esta classe ao HTML
+        renderMyProducts();
+        handleAddProduct();
+        handleProductActions();
+        setupNCMCascadingDropdowns();
+    }
+    
+    // --- FUNÇÕES ESPECÍFICAS DA PÁGINA "DADOS DE REGISTRO" (PERFIL) ---
+    if (document.getElementById('perfil-form')) {
+        populateProfileForm();
+    }
+
+    // Adicione outras funções de páginas específicas aqui, se necessário...
+    // Ex: comprar.html, resultados.html, etc.
 });
